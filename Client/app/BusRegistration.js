@@ -4,6 +4,7 @@ import TextInput from "../components/input";
 import Button from "../components/Button";
 import Picker from "../components/Picker";
 import { useState } from "react";
+import axios from "axios";
 
 const BusRegistration = () => {
   const [numberPlate, setNumberPlate] = useState("");
@@ -11,6 +12,9 @@ const BusRegistration = () => {
   const [vehicleType, setVehicleType] = useState("");
 
   const handleRegister = () => {};
+  axios.defaults.xsrfCookieName = "csrf_token";
+  axios.defaults.xsrfHeaderName = "X-CSRFToken";
+  axios.post("http://localhost:5000/user_registration/", {}).then();
 
   return (
     <Background>

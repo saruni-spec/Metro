@@ -16,7 +16,7 @@ def user_registration():
 
         user = User(email)
 
-        if user.is_registered(email):
+        if user:
             return jsonify({"status": "failed", "msg": "User already registered"}), 400
         else:
             user.save(password, first_name, other_name, phone)

@@ -14,6 +14,9 @@ import axios from "axios";
 import { set } from "ol/transform";
 import SearchableList from "../components/searchable";
 import Background from "../components/Background";
+import { LineString } from "ol/geom";
+import { Stroke, Style } from "ol/style";
+import Button from "../components/Button";
 
 const Home = () => {
   const mapRef = useRef();
@@ -97,6 +100,28 @@ const Home = () => {
       });
   }, []);
 
+  const [coordinates, setCoordinates] = useState([]);
+
+  // Create a LineString feature for the route
+  const route = new LineString(coordinates);
+  route.transform("EPSG:4326", "EPSG:3857"); // Transform from WGS 84 to Web Mercator
+
+  // Create a vector source and add the route feature to it
+  const vectorSource = new VectorSource({
+    features: [new Feature(route)],
+  });
+
+  // Create a vector layer and add it to the map
+  const vectorLayer = new VectorLayer({
+    source: vectorSource,
+    style: new Style({
+      stroke: new Stroke({
+        color: "#ff0000", // Red
+        width: 2,
+      }),
+    }),
+  });
+
   const [stationSearch, setStationSearch] = useState("");
   const [destinationSearch, setDestinationSearch] = useState("");
 
@@ -107,12 +132,19 @@ const Home = () => {
     item.toLowerCase().includes(destinationSearch.toLowerCase())
   );
 
+  const onSelectStation = (Pickup, destination) => {
+    const coordinates = [Pickup, destination];
+  };
+
   return (
     <Background>
-      <View ref={mapRef} style={{ width: "80%", height: "80%" }}></View>
+      <View ref={mapRef} style={{ width: "90%", height: "50%" }}></View>
       <View>
         <SearchableList data={stations} placeholder="Pickup station" />
         <SearchableList data={stations} placeholder="Destination" />
+        <Button mode="contained" onPress={() => {}}>
+          Confirm
+        </Button>
       </View>
     </Background>
   );
