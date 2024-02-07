@@ -6,24 +6,22 @@ bp = Blueprint("bus_registration", __name__, url_prefix="/bus_registration")
 
 
 @bp.route("/", methods=["POST"])
-@login_required
 def user_registration():
     if request.method == "POST":
         data = request.get_json()
-
-        if current_user.role == "sacco":
-            numberPlate = data.numberPlate
-            vehicleType = data.vehicleType
-            capacity = data.capacity
-            vehicle = Vehicle(numberPlate)
-            if vehicle:
-                return (
-                    jsonify({"status": "failed", "msg": "Vehicle already registered"}),
-                    400,
-                )
-            else:
-                vehicle.save(vehicleType, current_user.sacco_id, capacity)
-                return jsonify({"status": "success", "msg": "Vehicle registered"}), 200
+        numberPlate = data.get("numberPlate")
+        vehicleType = data.get("vehicleType")
+        capacity = data.get("capacity")
+        vehicle = Vehicle.query.filter_by(no_plate=numberPlate).first()
+        if vehicle:
+            return (
+                jsonify({"status": "failed", "msg": "Vehicle already registered"}),
+                400,
+            )
         else:
-            session["vehicleData"] = data
-            return jsonify({"status": "on-going", "msg": "User not sacco"}), 200
+            vehicle = Vehicle(numberPlate)
+            vehicle.save(vehicleType, 1, capacity)
+            return jsonify({"status": "success", "msg": "Vehicle registered"}), 200
+
+    else:
+        return jsonify({"status": "failed", "msg": "Invalid request"}), 400

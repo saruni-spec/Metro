@@ -18,20 +18,17 @@ class Sacco(db.Model):
 
     def save(
         self,
-        sacco_name,
         sacco_description,
         sacco_location,
         sacco_phone,
         sacco_email,
         sacco_password,
     ):
-        self.sacco_name = sacco_name
         self.sacco_description = sacco_description
         self.sacco_location = sacco_location
         self.sacco_phone = sacco_phone
         self.sacco_email = sacco_email
         self.sacco_password = bcrypt.generate_password_hash(sacco_password)
-        self.sacco_balance = 0
         self.sacco_rating = 0
 
         db.session.add(self)

@@ -1,0 +1,18 @@
+.nav{
+    list-style-type: none;
+
+}
+
+.nav li{
+    display: inline;
+    margin-right: 20px;
+    font-size: 20px;
+    font-weight: bold;
+    
+    text-decoration: none;
+    float: left;
+}
+.nav li a{
+    text-decoration: none;
+    
+}

@@ -1,6 +1,6 @@
 from .models import *
 from .views import *
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
 
@@ -27,5 +27,7 @@ def create_app():
     app.register_blueprint(login_bp)
     app.register_blueprint(user_registration_bp)
     app.register_blueprint(stations_bp)
+    app.register_blueprint(sacco_registration_bp)
+    app.register_blueprint(bus_registration_bp)
 
     return app

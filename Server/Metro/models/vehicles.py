@@ -40,7 +40,7 @@ class Vehicle(db.Model):
 
     def save(self, vehicle_type, sacco, capacity):
         self.vehicle_type = vehicle_type
-        self.sacco = sacco
+        self.sacco_id = sacco
         self.capacity = capacity
         self.balance = 0
 

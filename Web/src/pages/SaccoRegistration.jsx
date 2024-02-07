@@ -1,7 +1,6 @@
 import Background from "../components/Background";
-
 import { useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "./sacco.css";
 
 const SaccoRegistration = () => {
@@ -11,24 +10,19 @@ const SaccoRegistration = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [email, setEmail] = useState("");
 
+  let navigate = useNavigate();
+
   const handleRegister = () => {
-    axios.defaults.xsrfCookieName = "csrf_token";
-    axios.defaults.xsrfHeaderName = "X-CSRFToken";
-    axios
-      .post("http://localhost:5000/sacco_registration/", {
-        saccoName,
-        description,
-        location,
-        phoneNumber,
-        email,
-      })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const details = {
+      saccoName: saccoName,
+      description: description,
+      location: location,
+      phoneNumber: phoneNumber,
+      email: email,
+    };
+    navigate("/sacco_password", { state: { details } });
   };
+
   return (
     <Background>
       <div>
@@ -39,7 +33,7 @@ const SaccoRegistration = () => {
               type="text"
               placeholder="Sacco/Bus Name"
               required
-              onChange={(text) => setSaccoName(text)}
+              onChange={(event) => setSaccoName(event.target.value)}
             />
           </div>
           <div className="input-box">
@@ -48,7 +42,7 @@ const SaccoRegistration = () => {
               type="text"
               placeholder="Sacco/Bus Description"
               required
-              onChange={(text) => setDescription(text)}
+              onChange={(event) => setDescription(event.target.value)}
             />
           </div>
           <div className="column">
@@ -58,7 +52,7 @@ const SaccoRegistration = () => {
                 type="number"
                 placeholder="Enter phone number"
                 required
-                onChange={(text) => setPhoneNumber(text)}
+                onChange={(event) => setPhoneNumber(event.target.value)}
               />
             </div>
             <div className="input-box">
@@ -67,7 +61,7 @@ const SaccoRegistration = () => {
                 type="email"
                 placeholder="Email"
                 required
-                onChange={(text) => setEmail(text)}
+                onChange={(event) => setEmail(event.target.value)}
               />
             </div>
           </div>
@@ -78,7 +72,7 @@ const SaccoRegistration = () => {
               type="text"
               placeholder="Enter address"
               required
-              onChange={(text) => setLocation(text)}
+              onChange={(event) => setLocation(event.target.value)}
             />
             <div className="column">
               <input type="text" placeholder="Enter your city" required />
@@ -87,7 +81,7 @@ const SaccoRegistration = () => {
               <input type="text" placeholder="Enter your region" required />
             </div>
           </div>
-          <button onClick={handleRegister}>Submit</button>
+          <button onClick={handleRegister}>Proceed</button>
         </div>
       </div>
     </Background>
