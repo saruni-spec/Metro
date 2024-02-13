@@ -17,10 +17,14 @@ const Login = () => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
-      .post("http://localhost:5000/login/", {
-        email,
-        password,
-      })
+      .post(
+        "http://localhost:5000/login/",
+        {
+          email,
+          password,
+        },
+        { withCredentials: true }
+      )
       .then((res) => {
         console.log(res.data);
         console.log(email, password);

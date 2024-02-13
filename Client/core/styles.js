@@ -19,6 +19,13 @@ const styles = StyleSheet.create({
     color: theme.colors.error,
     paddingTop: 8,
   },
+  output: {
+    width: "100%",
+    margin: 6,
+    padding: 5,
+    backgroundColor: theme.colors.surface,
+    border: "1px solid",
+  },
 });
 
 export default styles;

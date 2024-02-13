@@ -26,7 +26,7 @@ class User(db.Model):
         return True
 
     def get_id(self):
-        return self.user_name
+        return self.user_id
 
     def is_active(self):
         return True

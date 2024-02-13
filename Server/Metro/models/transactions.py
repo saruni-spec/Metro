@@ -1,6 +1,7 @@
 from .database import db
-from sqlalchemy import ForeignKey, DateTime
+from sqlalchemy import ForeignKey
 from datetime import datetime
+from sqlalchemy import Date, Time
 from sqlalchemy.orm import relationship
 
 
@@ -12,8 +13,8 @@ class Transaction(db.Model):
     vehicle_id = db.Column(
         db.String(100), ForeignKey("vehicle.no_plate"), nullable=False
     )
-    paid_at = db.Column(DateTime, default=datetime.utcnow)
-    time = db.Column(db.String(50))
+    date = db.Column(Date, default=datetime.utcnow().date())
+    time = db.Column(Time, default=datetime.utcnow().time())
     booking_id = db.Column(
         db.Integer, ForeignKey("booking.booking_id"), unique=True, nullable=False
     )

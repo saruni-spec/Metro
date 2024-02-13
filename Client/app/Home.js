@@ -1,4 +1,5 @@
-import { View, TextInput, FlatList, Text } from "react-native";
+import { View, FlatList, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
 import Map from "ol/Map";
 import OLView from "ol/View";
@@ -15,12 +16,13 @@ import { set } from "ol/transform";
 import SearchableList from "../components/searchable";
 import Background from "../components/Background";
 import { LineString } from "ol/geom";
-import { Stroke, Style } from "ol/style";
+import TextOutput from "../components/TextOutput";
 import Button from "../components/Button";
+import { theme } from "../core/theme";
+import styles from "../core/styles";
 
 const Home = () => {
   const mapRef = useRef();
-  const [stations, setStations] = useState([]);
 
   useEffect(() => {
     const map = new Map({
@@ -81,23 +83,6 @@ const Home = () => {
 
     // Start tracking the user's location
     geolocation.setTracking(true);
-
-    axios
-      .get("http://localhost:5000/stations")
-      .then((res) => {
-        console.log(res.data.data);
-
-        let stations = [];
-        let station_names = [];
-        for (let [key, value] of Object.entries(res.data.data)) {
-          station_names.push(Object.keys(value)[0]);
-          stations.push(JSON.stringify(value));
-        }
-        setStations(station_names);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
   }, []);
 
   const [coordinates, setCoordinates] = useState([]);
@@ -122,6 +107,52 @@ const Home = () => {
     }),
   });
 
+  const [step, setStep] = useState(1);
+
+  const nextStep = () => setStep((prevStep) => prevStep + 1);
+  const prevStep = () => setStep((prevStep) => prevStep - 1);
+
+  const [busdata, setBusData] = useState([]);
+  const [selectedBus, setSelectedBus] = useState({});
+
+  return (
+    <Background>
+      <View ref={mapRef} style={{ width: "90%", height: "50%" }}></View>
+      {step === 1 && <SearchBus nextStep={nextStep} busdata={setBusData} />}
+      {step === 2 && (
+        <BookBus
+          nextStep={nextStep}
+          prevStep={prevStep}
+          busdata={busdata}
+          selectedBus={setSelectedBus}
+        />
+      )}
+      {step === 3 && <Booking prevStep={prevStep} selectedBus={selectedBus} />}
+    </Background>
+  );
+};
+
+const SearchBus = ({ nextStep, busdata }) => {
+  const navigation = useNavigation();
+  const [stations, setStations] = useState([]);
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/stations", { withCredentials: true })
+      .then((res) => {
+        console.log(res.data.data);
+
+        let stations = [];
+        let station_names = [];
+        for (let [key, value] of Object.entries(res.data.data)) {
+          station_names.push(Object.keys(value)[0]);
+          stations.push(JSON.stringify(value));
+        }
+        setStations(station_names);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
   const [stationSearch, setStationSearch] = useState("");
   const [destinationSearch, setDestinationSearch] = useState("");
 
@@ -135,18 +166,108 @@ const Home = () => {
   const onSelectStation = (Pickup, destination) => {
     const coordinates = [Pickup, destination];
   };
+  const [pickupStation, setPickupStation] = useState("");
+  const [destination, setDestination] = useState("");
 
+  destinationSelected = (destination) => {
+    setDestination(destination);
+  };
+
+  pickupStationSelected = (pickup) => {
+    setPickupStation(pickup);
+  };
+
+  const findVehicle = () => {
+    axios.defaults.xsrfCookieName = "csrf_token";
+    axios.defaults.xsrfHeaderName = "X-CSRFToken";
+    axios
+      .post(
+        "http://localhost:5000/find_bus/",
+        {
+          pickupStation,
+          destination,
+        },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        console.log(res.data.data[0], "data here");
+        busdata(res.data.data);
+        nextStep();
+      })
+      .catch((err) => {
+        if (err.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.log(err.response.data);
+          console.log(err.response.status);
+          console.log(err.response.headers);
+          if (err.response.status === 401) {
+            navigation.navigate("Login");
+          }
+          if (err.response.status === 400) {
+            // Handle 400 error
+            console.log("Error", err.response.data.msg);
+          } else {
+            // Handle any other error status
+            console.log("Error", "An error occurred. Please try again.");
+          }
+        } else if (err.request) {
+          // The request was made but no response was received
+          console.log(err.request);
+          console.log("Error", "No response from server. Please try again.");
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log("Error", err.message);
+          console.log("Error", "An error occurred. Please try again.");
+        }
+      });
+  };
   return (
-    <Background>
-      <View ref={mapRef} style={{ width: "90%", height: "50%" }}></View>
-      <View>
-        <SearchableList data={stations} placeholder="Pickup station" />
-        <SearchableList data={stations} placeholder="Destination" />
-        <Button mode="contained" onPress={() => {}}>
-          Confirm
-        </Button>
-      </View>
-    </Background>
+    <View>
+      <SearchableList
+        data={stations}
+        value={pickupStation}
+        placeholder="Pickup station"
+        onItemSelected={pickupStationSelected}
+      />
+      <SearchableList
+        data={stations}
+        value={destination}
+        placeholder="Destination"
+        onItemSelected={destinationSelected}
+      />
+      <Button mode="contained" onPress={findVehicle}>
+        Confirm
+      </Button>
+    </View>
+  );
+};
+
+import Booking from "./Booking";
+
+const BookBus = ({ nextStep, prevStep, busdata, selectedBus }) => {
+  console.log(busdata, "BookBus");
+
+  const bookingDetails = (item) => {
+    console.log(item, "item");
+    selectedBus(item);
+    nextStep();
+  };
+  return (
+    <View>
+      <FlatList
+        style={styles.output}
+        data={busdata}
+        renderItem={({ item }) => (
+          <TouchableOpacity onPress={() => bookingDetails(item)}>
+            <TextOutput>
+              {item.trip.route},{item.trip.vehicle}
+            </TextOutput>
+          </TouchableOpacity>
+        )}
+        keyExtractor={(item, index) => index.toString()}
+      />
+    </View>
   );
 };
 

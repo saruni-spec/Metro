@@ -36,7 +36,14 @@ body {
   width: 100%;
   margin-top: 20px;
 }
+.form .output-box {
+  width: 100%;
+  margin-top: 20px;
+}
 .input-box label {
+  color: #858383;
+}
+.output-box label {
   color: #858383;
 }
 .form :where(.input-box input, .select-box) {
@@ -45,14 +52,35 @@ body {
   width: 100%;
   outline: none;
   font-size: 1rem;
-  color: #707070;
+  color: #585858;
   margin-top: 8px;
   border: 1px solid #ddd;
   border-radius: 6px;
   padding: 0 15px;
   background-color: #ddd;
 }
+.output-box ul,.input-box ul{
+  list-style-type: none;
+  
+}
+.form :where(.output-box li, .input-box li) {
+  position: relative;
+  height: 50px;
+  width: 100%;
+  outline: none;
+  font-size: 1rem;
+  color: #080808;
+  margin-top: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 0 15px;
+  background-color: #adabab;
+  cursor: pointer;
+}
 .input-box input:focus {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+.output-box li:focus {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
 }
 .form .column {

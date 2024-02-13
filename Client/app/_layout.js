@@ -4,7 +4,7 @@ import Index from "./Index";
 import Register from "./Register";
 import Login from "./Login";
 import Home from "./Home";
-import BusRegistration from "./BusRegistration";
+import OpenBooking from "./OpenBooking";
 
 const Stack = createStackNavigator();
 
@@ -15,7 +15,7 @@ const Layout = () => {
       <Stack.Screen name="Register" component={Register} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Home" component={Home} />
-      <Stack.Screen name="BusRegistration" component={BusRegistration} />
+      <Stack.Screen name="OpenBooking" component={OpenBooking} />
     </Stack.Navigator>
   );
 };

@@ -6,3 +6,4 @@ from .stages import Stage
 from .transactions import Transaction
 from .vehicles import Vehicle
 from .database import *
+from .trips import Trip

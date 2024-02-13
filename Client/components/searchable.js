@@ -2,11 +2,12 @@ import React, { useState } from "react";
 import { View, FlatList, Text, TouchableOpacity } from "react-native";
 import TextInput from "./input";
 
-const SearchableList = ({ data, placeholder }) => {
+const SearchableList = ({ data, placeholder, onItemSelected }) => {
   const [search, setSearch] = useState("");
 
   const onSelect = (item) => {
     setSearch(item);
+    onItemSelected(item);
   };
 
   const filteredData = data.filter((item) =>

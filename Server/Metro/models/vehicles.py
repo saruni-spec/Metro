@@ -20,7 +20,7 @@ class Vehicle(db.Model):
     fare = db.Column(db.Float, nullable=True)
     is_active = db.Column(db.Boolean, default=True)
 
-    sacco_ = relationship("Sacco", backref="vehicle", lazy=True)
+    sacco = relationship("Sacco", backref="vehicle", lazy=True)
     driver = relationship("User", backref="vehicle", lazy=True)
 
     def __init__(self, no_plate):

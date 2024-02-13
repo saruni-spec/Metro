@@ -6,7 +6,7 @@ bp = Blueprint("bus_registration", __name__, url_prefix="/bus_registration")
 
 
 @bp.route("/", methods=["POST"])
-def user_registration():
+def bus_registration():
     if request.method == "POST":
         data = request.get_json()
         numberPlate = data.get("numberPlate")

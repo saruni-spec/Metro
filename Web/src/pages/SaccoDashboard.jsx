@@ -1,6 +1,5 @@
 import "./dashboard.css";
 import "./sacco.css";
-import { useNavigate } from "react-router-dom";
 
 const SaccoDashboard = () => {
   return (

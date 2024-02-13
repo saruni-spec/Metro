@@ -1,5 +1,7 @@
 from .database import db
 from sqlalchemy import Table
+from sqlalchemy import PickleType
+from .stages import Stage
 
 
 stages_routes = Table(
@@ -15,31 +17,30 @@ class Route(db.Model):
     route_id = db.Column(db.Integer, primary_key=True)
     route_distance = db.Column(db.Float)
     route_name = db.Column(db.String(100))
+    endpoints = db.Column(PickleType)
 
     stages = db.relationship(
         "Stage", secondary=stages_routes, backref=db.backref("routes", lazy="dynamic")
     )
 
-    def __init__(self, name):
+    def __init__(self, name, endpoints, distance):
         self.route_name = name
+        self.endpoints = endpoints
+        self.route_distance = distance
 
     def save(self):
         db.session.add(self)
         db.session.commit()
 
-    def distance(self, distance):
-        self.route_distance = distance
-        db.session.commit()
-
-    def stage(self, stages):
-        self.stages = stages
-        db.session.commit()
-
-    def add_stage(self, stage):
+    def add_stage(self, stage_name):
+        stage = Stage(stage_name)
         self.stages.append(stage)
         db.session.commit()
 
-    def add_many_stages(self, stages_list):
-        for stage in stages_list:
-            self.add_stage(stage)
-            db.session.commit()
+    def add_stages(self, stage_names):
+        for stage in stage_names:
+            self.stages.append(stage)
+        db.session.commit()
+
+    def get_stages(self):
+        return self.stages
