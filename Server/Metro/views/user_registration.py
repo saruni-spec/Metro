@@ -14,11 +14,12 @@ def user_registration():
         email = data.get("email")
         phone = data.get("phoneNumber")
 
-        user = User(email)
+        user = User.query.filter_by(email=email).first()
 
         if user:
             return jsonify({"status": "failed", "msg": "User already registered"}), 400
         else:
+            user = User(email)
             user.save(password, first_name, other_name, phone)
             return jsonify({"status": "success", "msg": "User registered"}), 200
 

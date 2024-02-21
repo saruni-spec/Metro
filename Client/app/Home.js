@@ -1,111 +1,56 @@
-import { View, FlatList, TouchableOpacity } from "react-native";
+import { View, FlatList, TouchableOpacity, Text } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import React, { useEffect, useRef, useState } from "react";
-import Map from "ol/Map";
-import OLView from "ol/View";
-import TileLayer from "ol/layer/Tile";
-import OSM from "ol/source/OSM";
-import Geolocation from "ol/Geolocation";
-import { Circle as CircleStyle, Fill, Stroke, Style } from "ol/style";
-import Feature from "ol/Feature";
-import Point from "ol/geom/Point";
-import VectorSource from "ol/source/Vector";
-import VectorLayer from "ol/layer/Vector";
+import React, { useEffect, useState, useRef } from "react";
+import MapView from "react-native-maps";
+import * as Location from "expo-location";
 import axios from "axios";
-import { set } from "ol/transform";
+import { Alert } from "react-native";
 import SearchableList from "../components/searchable";
 import Background from "../components/Background";
-import { LineString } from "ol/geom";
+import TextInput from "../components/input";
+import List from "../components/List";
 import TextOutput from "../components/TextOutput";
 import Button from "../components/Button";
 import { theme } from "../core/theme";
 import styles from "../core/styles";
+import Transaction from "./Transaction";
 
 const Home = () => {
-  const mapRef = useRef();
+  const [region, setRegion] = useState(null);
 
   useEffect(() => {
-    const map = new Map({
-      target: mapRef.current, // Render the map inside the ref
-      layers: [
-        new TileLayer({
-          source: new OSM(),
-        }),
-      ],
-      view: new OLView({
-        center: [0, 0],
-        zoom: 16,
-      }),
-    });
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.error("Permission to access location was denied");
+        return;
+      }
 
-    // Create a geolocation object
-    const geolocation = new Geolocation({
-      // enable High-Accuracy
-      trackingOptions: {
-        enableHighAccuracy: true,
-      },
-      projection: map.getView().getProjection(),
-    });
+      let location = await Location.getCurrentPositionAsync({});
+      setRegion({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      });
 
-    const positionFeature = new Feature();
-    positionFeature.setStyle(
-      new Style({
-        image: new CircleStyle({
-          radius: 6,
-          fill: new Fill({
-            color: "#3399CC",
-          }),
-          stroke: new Stroke({
-            color: "#fff",
-            width: 2,
-          }),
-        }),
-      })
-    );
-
-    // Create a vector source and add the feature to it
-    const positionSource = new VectorSource({
-      features: [positionFeature],
-    });
-
-    // Create a vector layer and add it to the map
-    const positionLayer = new VectorLayer({
-      source: positionSource,
-    });
-    map.addLayer(positionLayer);
-
-    // Listen to changes in position
-    geolocation.on("change", function () {
-      const coordinates = geolocation.getPosition();
-      positionFeature.setGeometry(coordinates ? new Point(coordinates) : null);
-      map.getView().setCenter(coordinates);
-    });
-
-    // Start tracking the user's location
-    geolocation.setTracking(true);
+      Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 1000,
+          distanceInterval: 1,
+        },
+        (location) => {
+          setRegion({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          });
+        }
+      );
+    })();
   }, []);
-
-  const [coordinates, setCoordinates] = useState([]);
-
-  // Create a LineString feature for the route
-  const route = new LineString(coordinates);
-  route.transform("EPSG:4326", "EPSG:3857"); // Transform from WGS 84 to Web Mercator
-
-  // Create a vector source and add the route feature to it
-  const vectorSource = new VectorSource({
-    features: [new Feature(route)],
-  });
-
-  // Create a vector layer and add it to the map
-  const vectorLayer = new VectorLayer({
-    source: vectorSource,
-    style: new Style({
-      stroke: new Stroke({
-        color: "#ff0000", // Red
-        width: 2,
-      }),
-    }),
-  });
 
   const [step, setStep] = useState(1);
 
@@ -115,9 +60,16 @@ const Home = () => {
   const [busdata, setBusData] = useState([]);
   const [selectedBus, setSelectedBus] = useState({});
 
-  return (
+  return region ? (
     <Background>
-      <View ref={mapRef} style={{ width: "90%", height: "50%" }}></View>
+      <MapView
+        style={{
+          flex: 1,
+          width: "100%",
+          height: "50%",
+        }}
+        region={region}
+      />
       {step === 1 && <SearchBus nextStep={nextStep} busdata={setBusData} />}
       {step === 2 && (
         <BookBus
@@ -127,25 +79,39 @@ const Home = () => {
           selectedBus={setSelectedBus}
         />
       )}
-      {step === 3 && <Booking prevStep={prevStep} selectedBus={selectedBus} />}
+      {step === 3 && (
+        <Booking
+          prevStep={prevStep}
+          nextStep={nextStep}
+          selectedBus={selectedBus}
+        />
+      )}
+      {step === 4 && (
+        <Transaction prevStep={prevStep} selectedBus={selectedBus} />
+      )}
     </Background>
-  );
+  ) : null;
 };
 
 const SearchBus = ({ nextStep, busdata }) => {
   const navigation = useNavigation();
   const [stations, setStations] = useState([]);
+  const [search, setSearch] = useState({ value: "", active: "" });
+  const activeInputRef = useRef(null);
+
   useEffect(() => {
     axios
-      .get("http://localhost:5000/stations", { withCredentials: true })
+      .get("http://192.168.0.104:5000/stations", {
+        withCredentials: true,
+      })
       .then((res) => {
         console.log(res.data.data);
 
-        let stations = [];
+        let mystations = [];
         let station_names = [];
         for (let [key, value] of Object.entries(res.data.data)) {
           station_names.push(Object.keys(value)[0]);
-          stations.push(JSON.stringify(value));
+          mystations.push(JSON.stringify(value));
         }
         setStations(station_names);
       })
@@ -154,13 +120,9 @@ const SearchBus = ({ nextStep, busdata }) => {
       });
   }, []);
   const [stationSearch, setStationSearch] = useState("");
-  const [destinationSearch, setDestinationSearch] = useState("");
 
   const filteredStationData = stations.filter((item) =>
-    item.toLowerCase().includes(stationSearch.toLowerCase())
-  );
-  const filteredDestinationData = stations.filter((item) =>
-    item.toLowerCase().includes(destinationSearch.toLowerCase())
+    item.toLowerCase().includes(search.value.toLowerCase())
   );
 
   const onSelectStation = (Pickup, destination) => {
@@ -169,20 +131,12 @@ const SearchBus = ({ nextStep, busdata }) => {
   const [pickupStation, setPickupStation] = useState("");
   const [destination, setDestination] = useState("");
 
-  destinationSelected = (destination) => {
-    setDestination(destination);
-  };
-
-  pickupStationSelected = (pickup) => {
-    setPickupStation(pickup);
-  };
-
   const findVehicle = () => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://localhost:5000/find_bus/",
+        "http://192.168.0.104:5000/find_bus/",
         {
           pickupStation,
           destination,
@@ -204,6 +158,14 @@ const SearchBus = ({ nextStep, busdata }) => {
           if (err.response.status === 401) {
             navigation.navigate("Login");
           }
+          if (err.response.status === 404) {
+            Alert.alert(
+              "Failed",
+              "No bus found",
+              [{ text: "OK", onPress: () => {} }],
+              { cancelable: false }
+            );
+          }
           if (err.response.status === 400) {
             // Handle 400 error
             console.log("Error", err.response.data.msg);
@@ -222,20 +184,61 @@ const SearchBus = ({ nextStep, busdata }) => {
         }
       });
   };
+
+  const onSelect = (item) => {
+    if (search.active === "pickupStation") {
+      setPickupStation(item);
+      console.log(item, "pickupStation");
+    } else if (search.active === "destination") {
+      setDestination(item);
+      console.log(item, "destination");
+    }
+
+    setSearch({ value: "", active: "" });
+  };
+
+  const pickupSearch = (text) => {
+    setPickupStation(text);
+    setSearch({ value: text, active: "pickupStation" });
+  };
+  const destinationSearch = (text) => {
+    setDestination(text);
+    setSearch({ value: text, active: "destination" });
+  };
+
   return (
-    <View>
-      <SearchableList
-        data={stations}
+    <View style={{ width: "100%", padding: 20, height: "80%", zIndex: 1 }}>
+      <TextInput
+        label="Pickup Station"
+        returnKeyType="next"
         value={pickupStation}
-        placeholder="Pickup station"
-        onItemSelected={pickupStationSelected}
+        onChangeText={(text) => pickupSearch(text)}
+        onFocus={() => (activeInputRef.current = "pickupStation")}
+        autoCapitalize="none"
       />
-      <SearchableList
-        data={stations}
+      <TextInput
+        label="Destination"
+        returnKeyType="next"
         value={destination}
-        placeholder="Destination"
-        onItemSelected={destinationSelected}
+        onChangeText={(text) => destinationSearch(text)}
+        onFocus={() => (activeInputRef.current = "destination")}
+        autoCapitalize="none"
       />
+      {search.value !== "" && (
+        <FlatList
+          data={filteredStationData}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => onSelect(item)}
+              style={styles.listItem}
+            >
+              <Text>{item}</Text>
+            </TouchableOpacity>
+          )}
+        />
+      )}
+
       <Button mode="contained" onPress={findVehicle}>
         Confirm
       </Button>
@@ -254,15 +257,18 @@ const BookBus = ({ nextStep, prevStep, busdata, selectedBus }) => {
     nextStep();
   };
   return (
-    <View>
+    <View style={{ width: "100%", padding: 20, height: "80%", zIndex: 1 }}>
       <FlatList
         style={styles.output}
         data={busdata}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => bookingDetails(item)}>
-            <TextOutput>
+          <TouchableOpacity
+            onPress={() => bookingDetails(item)}
+            style={styles.listItem}
+          >
+            <Text>
               {item.trip.route},{item.trip.vehicle}
-            </TextOutput>
+            </Text>
           </TouchableOpacity>
         )}
         keyExtractor={(item, index) => index.toString()}

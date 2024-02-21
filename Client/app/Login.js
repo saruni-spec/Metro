@@ -7,6 +7,7 @@ import TextInput from "../components/input";
 import Background from "../components/Background";
 import Button from "../components/Button";
 import PasswordInput from "../components/PasswordInput";
+import EmailInput from "../components/EmailInput";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -18,7 +19,7 @@ const Login = () => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://localhost:5000/login/",
+        "http://192.168.0.104:5000/login/",
         {
           email,
           password,
@@ -62,11 +63,11 @@ const Login = () => {
 
   return (
     <Background>
-      <TextInput
+      <EmailInput
         label="Email"
         returnKeyType="next"
         value={email}
-        onChangeText={(text) => setEmail(text)}
+        setEmail={setEmail}
         autoCapitalize="none"
         autoCompleteType="email"
         textContentType="emailAddress"

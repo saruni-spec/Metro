@@ -40,5 +40,6 @@ def create_app():
     app.register_blueprint(bus_route_bp)
     app.register_blueprint(find_bus_bp)
     app.register_blueprint(bookings_bp)
+    app.register_blueprint(transactions_bp)
 
     return app

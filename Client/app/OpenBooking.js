@@ -37,7 +37,9 @@ const OpenBooking = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/stations", { withCredentials: true })
+      .get("http://192.168.0.104:5000/stations", {
+        withCredentials: true,
+      })
       .then((res) => {
         console.log(res.data.data);
 
@@ -60,7 +62,7 @@ const OpenBooking = () => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://localhost:5000/bus_route/",
+        "http://192.168.0.104:5000/bus_route/",
         {
           pickupStation,
           destination,

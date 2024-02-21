@@ -26,6 +26,7 @@ def login():
             print(user.password, "password")
             if user.verify_password(password):
                 print("Password verified")
+
                 login_user(user)
                 return jsonify({"status": "success", "msg": "Logged in"}), 200
             else:

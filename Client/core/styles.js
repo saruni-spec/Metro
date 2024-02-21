@@ -26,6 +26,14 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.surface,
     border: "1px solid",
   },
+  listItem: {
+    padding: 5,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+    borderRadius: 5,
+    backgroundColor: theme.colors.surface,
+  },
 });
 
 export default styles;

@@ -1,14 +1,19 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
-import { View } from "react-native";
 import { theme } from "../core/theme";
+import styles from "../core/styles";
+import { View } from "react-native";
 
 export default function TextOutput(props) {
-  return <Text style={styles.text} {...props} />;
+  return (
+    <View style={styles.listItem}>
+      <Text style={style.text} {...props} />
+    </View>
+  );
 }
 
-const styles = StyleSheet.create({
+const style = StyleSheet.create({
   text: {
     fontSize: 18,
     lineHeight: 21,

@@ -4,26 +4,31 @@ import TextOutput from "../components/TextOutput";
 import Button from "../components/Button";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
+import styles from "../core/styles";
+import BackButton from "../components/BackButton";
 
-const Booking = ({ prevStep, selectedBus }) => {
+const Booking = ({ prevStep, nextStep, selectedBus }) => {
   const navigation = useNavigation();
   console.log(selectedBus, "selectedBus");
   const [busBooked, setBusBooked] = useState(false);
 
   const bookBus = () => {
+    setBusBooked(true);
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://localhost:5000/bookings/",
+        "http://192.168.0.104:5000/bookings/",
         {
           vehicle: selectedBus.trip.vehicle,
           trip_id: selectedBus.trip.trip_id,
+          fare: selectedBus.trip.fare,
         },
         { withCredentials: true }
       )
       .then((res) => {
         console.log(res.data);
+        nextStep();
       })
       .catch((err) => {
         if (err.response) {
@@ -57,32 +62,33 @@ const Booking = ({ prevStep, selectedBus }) => {
   };
 
   return (
-    <View>
-      {!busBooked && (
-        <Button mode="contained" onPress={prevStep}>
-          Back
-        </Button>
-      )}
+    <View style={{ width: "100%", padding: 20, height: "80%", zIndex: 1 }}>
+      {!busBooked && <BackButton onPress={prevStep} />}
 
-      <View>
-        <TextOutput>Trip Details</TextOutput>
-      </View>
       <View>
         <TextOutput>{selectedBus.trip.route}</TextOutput>
       </View>
       <View>
-        <TextOutput>{selectedBus.trip.vehicle}</TextOutput>
-        <TextOutput>{selectedBus.trip.sacco}</TextOutput>
-        <TextOutput>{selectedBus.trip.driver}</TextOutput>
+        <TextOutput>Vehicle:{selectedBus.trip.vehicle}</TextOutput>
+        <TextOutput>
+          Available Seats:{selectedBus.trip.available_seats}
+        </TextOutput>
+        <TextOutput>Depature Time: {selectedBus.trip.depature_time}</TextOutput>
+        <TextOutput>Fare: {selectedBus.trip.fare}</TextOutput>
       </View>
       <View>
-        <TextOutput>{selectedBus.trip.available_seats}</TextOutput>
-        <TextOutput>{selectedBus.trip.depature_time}</TextOutput>
-        <TextOutput>{selectedBus.trip.fare}</TextOutput>
+        <TextOutput>Sacco:{selectedBus.trip.sacco}</TextOutput>
+        <TextOutput>Driver:{selectedBus.trip.driver}</TextOutput>
       </View>
+
       {!busBooked && (
         <Button mode="contained" onPress={bookBus}>
           Book
+        </Button>
+      )}
+      {busBooked && (
+        <Button mode="contained" onPress={bookBus}>
+          Proceed to Payment
         </Button>
       )}
     </View>

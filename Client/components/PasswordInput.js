@@ -20,14 +20,7 @@ export default function PasswordInput({ description, ...props }) {
         {...props}
         right={
           <Input.Icon
-            name={() => (
-              <MaterialCommunityIcons
-                name={isPasswordSecure ? "eye-off" : "eye"}
-                size={28}
-                style={styles.icon}
-                color="black"
-              />
-            )}
+            icon="eye"
             onPress={() => {
               setIsPasswordSecure(!isPasswordSecure);
             }}

@@ -28,9 +28,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 20,
+    padding: 5,
     width: "100%",
-    maxWidth: 340,
+    maxWidth: 480,
     alignSelf: "center",
     alignItems: "center",
     justifyContent: "center",
