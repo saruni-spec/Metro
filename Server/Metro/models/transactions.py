@@ -39,6 +39,10 @@ class Transaction(db.Model):
         self.status = "completed"
         db.session.commit()
 
+    def cancel_payment(self):
+        self.status = "cancelled"
+        db.session.commit()
+
     def make_rating(self, rating):
         self.rating = int(rating)
         db.session.commit()

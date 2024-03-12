@@ -12,6 +12,8 @@ from .busRoute import bp as bus_route_bp
 from .findBus import bp as find_bus_bp
 from .bookings import bp as bookings_bp
 from .transaction import bp as transactions_bp
+from .profile import bp as profile_bp
+
 from .payment import payment
 
 from .decorators import role_required as role

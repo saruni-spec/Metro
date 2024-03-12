@@ -3,6 +3,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from sqlalchemy import Date, Time
+from .trips import Trip
 
 
 class Booking(db.Model):
@@ -35,16 +36,22 @@ class Booking(db.Model):
         self.Status = "Pending"
 
     def save(self):
+
         db.session.add(self)
         db.session.commit()
 
     def confirm(self):
-        self.Status = "confirmed"
+
         db.session.commit()
 
     def cancel(self):
         self.Status = "Cancelled"
+
         db.session.commit()
 
     def commit():
         db.session.commit()
+
+    def reduce_seats(self):
+        self.Status = "confirmed"
+        self.trip.reduce_seats()

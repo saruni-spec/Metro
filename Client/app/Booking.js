@@ -6,6 +6,7 @@ import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import styles from "../core/styles";
 import BackButton from "../components/BackButton";
+import { Alert } from "react-native";
 
 const Booking = ({ prevStep, nextStep, selectedBus }) => {
   const navigation = useNavigation();
@@ -18,7 +19,7 @@ const Booking = ({ prevStep, nextStep, selectedBus }) => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.0.104:5000/bookings/",
+        "http://192.168.222.61:5000/bookings/",
         {
           vehicle: selectedBus.trip.vehicle,
           trip_id: selectedBus.trip.trip_id,
@@ -39,6 +40,21 @@ const Booking = ({ prevStep, nextStep, selectedBus }) => {
           console.log(err.response.headers);
           if (err.response.status === 401) {
             navigation.navigate("Login");
+          }
+          if (err.response.status === 404) {
+            Alert.alert(
+              "Failed",
+              "You have an active booking. Please cancel it to book another bus.",
+              [
+                {
+                  text: "OK",
+                  onPress: () => {
+                    navigation.navigate("MyBooking");
+                  },
+                },
+              ],
+              { cancelable: false }
+            );
           }
           if (err.response.status === 400) {
             // Handle 400 error
@@ -63,7 +79,7 @@ const Booking = ({ prevStep, nextStep, selectedBus }) => {
 
   return (
     <View style={{ width: "100%", padding: 20, height: "80%", zIndex: 1 }}>
-      {!busBooked && <BackButton onPress={prevStep} />}
+      {!busBooked && <BackButton goBack={prevStep} />}
 
       <View>
         <TextOutput>{selectedBus.trip.route}</TextOutput>

@@ -14,7 +14,7 @@ const Transaction = ({ prevStep, selectedBus }) => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
-      .post("http://192.168.0.104:5000/bookings/payment", {
+      .post("http://192.168.222.61:5000/bookings/payment", {
         withCredentials: true,
       })
       .then((res) => {
@@ -33,26 +33,24 @@ const Transaction = ({ prevStep, selectedBus }) => {
         // Set an interval to check the payment status every 5 seconds
         let intervalId = setInterval(() => {
           axios
-            .post("http://192.168.0.104:5000/bookings/payment/status", {
+            .post("http://192.168.222.61:5000/bookings/payment/status", {
               withCredentials: true,
             })
             .then((res) => {
               console.log(res.data.status, "status");
-              if (
-                res.data.status === "COMPLETE" ||
-                res.data.status === "CANCELLED"
-              ) {
+              if (res.data.status === "COMPLETE") {
+                clearInterval(intervalId);
+                setStatus("paid");
+                navigation.navigate("MyBooking");
+              }
+
+              if (res.data.status === "FAILED") {
                 // If the payment is made or cancelled, stop the interval
                 clearInterval(intervalId);
+                setStatus("cancelled");
+                prevStep();
 
                 // Handle the payment status
-                if (res.data.status === "COMPLETE") {
-                  // Handle successful payment
-                  setStatus("paid");
-                } else {
-                  // Handle cancelled payment
-                  setStatus("cancelled");
-                }
               }
             })
             .catch((error) => console.error("Error:", error));
@@ -90,12 +88,12 @@ const Transaction = ({ prevStep, selectedBus }) => {
 
   return (
     <View style={{ width: "100%", padding: 20, height: "80%", zIndex: 1 }}>
-      {status !== "paid" && <BackButton onPress={prevStep} />}
+      {status !== "paid" && <BackButton goBack={prevStep} />}
       <View>
         <TextOutput>Transaction status : {status}</TextOutput>
       </View>
       {status === "pending" && <Indicator />}
-
+      {status === "cancelled" && <TextOutput>Payment Cancelled</TextOutput>}
       <View>
         <TextOutput>{selectedBus.trip.route}</TextOutput>
       </View>

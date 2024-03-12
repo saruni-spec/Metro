@@ -19,7 +19,7 @@ const Login = () => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.0.104:5000/login/",
+        "http://192.168.222.61:5000/login/",
         {
           email,
           password,
@@ -28,8 +28,13 @@ const Login = () => {
       )
       .then((res) => {
         console.log(res.data);
-        console.log(email, password);
-        navigation.navigate("Home");
+        if (res.data.role === "driver") {
+          navigation.navigate("CreateTrip");
+        } else if (res.data.role === "admin") {
+          navigation.navigate("Admin");
+        } else if (res.data.role === "user") {
+          navigation.navigate("Home");
+        }
       })
       .catch((err) => {
         if (err.response) {

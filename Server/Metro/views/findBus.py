@@ -11,12 +11,17 @@ def find_bus():
         data = request.get_json()
         pick_up = data.get("pickupStation").strip()
         destination = data.get("destination").strip()
+        print(pick_up, destination, "findBus")
         trips = Trip.query.filter_by(ongoing=True, start_point=pick_up).all()
+        print(trips, "trips findBus")
 
         for trip in trips:
             for stage in trip.trip_route.stages:
+                print(stage.stage_name, "stageFinfbus")
                 if destination == stage.stage_name:
                     available_buses.append(trip)
+
+        print(available_buses, "findBus")
         if available_buses:
             session["pickup"] = pick_up
             session["destination"] = destination
@@ -33,7 +38,7 @@ def find_bus():
                                     "vehicle": trip.vehicle_plate,
                                     "driver": trip.vehicle.driver.first_name,
                                     "sacco": trip.vehicle.sacco.sacco_name,
-                                    "available_seats": trip.available_seats(),
+                                    "available_seats": trip.available_seats,
                                     "depature_time": f"{trip.date},{trip.time}",
                                     "fare": trip.fare,
                                 }
