@@ -26,7 +26,9 @@ def bookings():
         print(vehicle, "vehicle")
         print(trip_id, "trip_id")
 
-        currentBookings = Booking.query.filter_by(email=email, Status="Pending").first()
+        currentBookings = Booking.query.filter_by(
+            email=email, Status="confirmed", trip_id=trip_id
+        ).first()
         if currentBookings:
             return (
                 jsonify({"status": "failed", "message": "You have a booking Pending"}),
@@ -35,7 +37,7 @@ def bookings():
         else:
             booking = Booking(email, phone, pickup_point, destination, vehicle, trip_id)
             booking.save()
-
+            booking.reduce_seats()
             session["booking_id"] = booking.booking_id
             session["vehicle_id"] = vehicle
             session["amount"] = fare
@@ -45,6 +47,7 @@ def bookings():
                     {
                         "status": "success",
                         "message": "Booking successful",
+                        "booking_id": booking.booking_id,
                     }
                 ),
                 201,
@@ -72,6 +75,7 @@ def fare_payment():
             current_user.phone,
         )
         transaction.save()
+        session["transaction_id"] = transaction.transaction_id
         return jsonify({"status": "success", "response": response}), 200
     else:
         return jsonify({"status": "failed", "message": "Invalid request method"}), 405
@@ -83,15 +87,28 @@ def fare_status():
         invoice_id = session.get("invoice_id")
         response = payment_status(invoice_id)
 
+        transaction_id = session.get("transaction_id")
         status = response["invoice"]["state"]
         print(status)
-        transaction = Transaction.query.filter_by(email=current_user.email).first()
-        if status == "paid":
-            transaction.complete_payment()
-        if status == "cancelled":
-            transaction.cancel_payment()
 
-        return jsonify({"status": status, "response": "ok"}), 200
+        if status == "COMPLETE":
+
+            transaction = Transaction.query.filter_by(
+                transaction_id=transaction_id
+            ).first()
+            print("complete transaction")
+            transaction.complete_payment()
+            return jsonify({"status": status, "response": "ok"}), 200
+        if status != "PROCESSING" and status != "COMPLETE":
+            transaction = Transaction.query.filter_by(
+                transaction_id=transaction_id
+            ).first()
+            print("cancel transaction")
+            transaction.cancel_payment()
+            return jsonify({"status": status, "response": "cancelled"}), 404
+        else:
+
+            return jsonify({"status": status, "response": "ok"}), 200
     else:
         return jsonify({"status": "failed", "message": "Invalid request method"}), 405
 
@@ -102,10 +119,20 @@ def mybooking():
         print(current_user, "current_user")
         email = current_user.email
 
-        currentBooking = Booking.query.filter_by(email=email, Status="Pending").first()
-
+        currentBooking = (
+            Booking.query.filter_by(email=email, Status="confirmed")
+            .order_by(Booking.date.desc(), Booking.time.desc())
+            .first()
+        )
+        print(currentBooking, "currentBooking")
+        print(email, "email")
+        transaction_status = "pending"
+        transaction_id = "Not Paid"
         if currentBooking:
-            session["my_booking_id"] = currentBooking.booking_id
+            if currentBooking.transaction:
+                transaction_status = currentBooking.transaction[0].status
+                transaction_id = currentBooking.transaction[0].transaction_id
+                print(transaction_status, "transaction_status")
             return (
                 jsonify(
                     {
@@ -118,6 +145,9 @@ def mybooking():
                             "pickup": currentBooking.pickup_point,
                             "destination": currentBooking.destination,
                             "status": currentBooking.Status,
+                            "transaction_status": transaction_status,
+                            "fare": currentBooking.trip.fare,
+                            "transaction_id": transaction_id,
                         },
                     }
                 ),
@@ -134,13 +164,15 @@ def mybooking():
 def cancel():
     if request.method == "POST":
 
-        booking_id = session.get("my_booking_id")
+        booking = Booking.query.filter_by(
+            email=current_user.email, Status="confirmed"
+        ).first()
+
+        booking_id = booking.booking_id
         print(booking_id, "booking_id")
         booking = Booking.query.filter_by(booking_id=booking_id).first()
         if booking:
             booking.cancel()
-            trip = Trip.query.filter_by(trip_id=booking.trip_id).first()
-            trip.cancel_booking(1)
             return (
                 jsonify(
                     {"status": "success", "message": "Booking cancelled successfully"}

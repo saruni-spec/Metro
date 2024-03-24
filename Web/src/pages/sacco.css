@@ -130,3 +130,18 @@ body {
     row-gap: 15px;
   }
 }
+.noList{
+  list-style-type: none;
+  
+}
+
+.clickable {
+  display: block; /* Makes the element fill the entire width of its container */
+  cursor: pointer; /* Changes the cursor to a hand on hover */
+}
+
+.clickable a {
+  /* Optional: Remove default link styles */
+  text-decoration: none;
+  color: inherit;
+}

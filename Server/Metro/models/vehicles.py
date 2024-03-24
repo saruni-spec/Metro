@@ -105,3 +105,17 @@ class Vehicle(db.Model):
                 total_rating += rating.rating
             average_rating = total_rating / len(self.transactions)
             self.rating = average_rating
+
+    def serialize(self):
+        return {
+            "vehicle_type": self.vehicle_type,
+            "no_plate": self.no_plate,
+            "capacity": self.capacity,
+            "sacco_id": self.sacco_id,
+            "driver_id": self.driver_id,
+            "date_registered": self.date_registered.strftime("%Y-%m-%d"),
+            "balance": self.balance,
+            "rating": self.rating,
+            "fare": self.fare,
+            "is_active": self.is_active,
+        }

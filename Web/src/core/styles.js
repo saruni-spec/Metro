@@ -19,8 +19,7 @@ const styles = {
     alignItems: "center",
     padding: "20px",
     textAlign: "center",
-    backgroundColor: theme.colors.surface,
-    color: theme.colors.text,
+    color: theme.colors.surface,
     borderRadius: "10px",
     margin: "20px",
   },
@@ -36,6 +35,22 @@ const styles = {
     fontSize: "13px",
     color: theme.colors.error,
     paddingTop: "8px",
+  },
+  floating: {
+    position: "fixed",
+    top: "0%",
+    left: "80%",
+    padding: "5px",
+    backgroundColor: theme.colors.surface,
+    borderRadius: "5px",
+    display: "flex",
+    flexDirection: "row",
+  },
+  noList: {
+    listStyleType: "none",
+    padding: "0",
+    display: "flex",
+    flexDirection: "column",
   },
 };
 

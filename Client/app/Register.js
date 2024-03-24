@@ -33,7 +33,7 @@ const Register = () => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
-      .post("http://192.168.222.61:5000/user_registration/", {
+      .post("http://192.168.4.61:5000/user_registration/", {
         email,
         firstName,
         lastName,

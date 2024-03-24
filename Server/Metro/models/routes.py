@@ -33,14 +33,36 @@ class Route(db.Model):
         db.session.commit()
 
     def add_stage(self, stage_name):
-        stage = Stage(stage_name)
-        self.stages.append(stage)
+        existing_stage = Stage.query.filter_by(stage_name=stage_name).first()
+        if existing_stage:
+            self.stages.append(existing_stage)
+        else:
+            stage = Stage(stage_name)
+            self.stages.append(stage)
         db.session.commit()
 
     def add_stages(self, stage_names):
-        for stage in stage_names:
-            self.stages.append(stage)
+        for stage_name in stage_names:
+            existing_stage = Stage.query.filter_by(stage_name=stage_name).first()
+            if existing_stage:
+                self.stages.append(existing_stage)
+            else:
+                stage = Stage(stage_name)
+                self.stages.append(stage)
         db.session.commit()
 
     def get_stages(self):
         return self.stages
+
+    def add_endpoints(self, endpoints):
+        self.endpoints = endpoints
+        db.session.commit()
+
+    def serialize(self):
+        return {
+            "route_id": self.route_id,
+            "route_name": self.route_name,
+            "route_distance": self.route_distance,
+            "endpoints": self.endpoints,
+            "stages": [stage.serialize() for stage in self.stages],
+        }

@@ -17,7 +17,7 @@ class Trip(db.Model):
     available_seats = db.Column(db.Integer, nullable=True)
     booked_seats = db.Column(db.Integer, default=0)
     date = db.Column(Date, default=datetime.utcnow().date())
-    time = db.Column(Time, default=datetime.utcnow().time())
+    time = db.Column(Time, default=lambda: datetime.utcnow().time())
     fare = db.Column(db.Float, nullable=True)
 
     vehicle = relationship("Vehicle", backref="trips", lazy=True)
@@ -40,6 +40,8 @@ class Trip(db.Model):
 
     def complete(self):
         self.ongoing = False
+        for booking in self.booking:
+            booking.complete()
         db.session.commit()
 
     def reduce_seats(self):
@@ -59,9 +61,20 @@ class Trip(db.Model):
 
     def cancel_trip(self):
         self.ongoing = False
+        for booking in self.booking:
+            booking.cancel()
         db.session.commit()
 
-    def cancel_booking(self, seats):
-        self.available_seats += seats
-        self.booked_seats -= seats
-        db.session.commit()
+    def serialize(self):
+        return {
+            "trip_id": self.trip_id,
+            "vehicle_plate": self.vehicle_plate,
+            "route": self.route,
+            "ongoing": self.ongoing,
+            "start_point": self.start_point,
+            "available_seats": self.available_seats,
+            "booked_seats": self.booked_seats,
+            "date": self.date.strftime("%Y-%m-%d"),  # convert date to string
+            "time": self.time.strftime("%H:%M"),
+            "fare": self.fare,
+        }

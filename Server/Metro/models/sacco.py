@@ -30,7 +30,6 @@ class Sacco(db.Model):
         self.sacco_email = sacco_email
         self.sacco_password = bcrypt.generate_password_hash(sacco_password)
         self.sacco_rating = 0
-
         db.session.add(self)
         db.session.commit()
 
@@ -55,9 +54,21 @@ class Sacco(db.Model):
         db.session.commit()
 
     def change_sacco_password(self, sacco_password):
-        self.sacco_password = sacco_password
+        self.password = bcrypt.generate_password_hash(sacco_password)
         db.session.commit()
 
     def change_sacco_rating(self, sacco_rating):
         self.sacco_rating = sacco_rating
         db.session.commit()
+
+    def verify_password(self, password):
+        return bcrypt.check_password_hash(self.sacco_password, password)
+
+    def is_authenticated(self):
+        return True
+
+    def get_id(self):
+        return self.sacco_id
+
+    def is_active(self):
+        return True

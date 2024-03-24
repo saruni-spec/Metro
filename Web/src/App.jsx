@@ -7,6 +7,11 @@ import BusRegistration from "./pages/BusRegistration";
 import MyRoutes from "./pages/Routes";
 import RouteStations from "./pages/RouteStations";
 import Stages from "./pages/Stages";
+import SaccoLogin from "./pages/SaccoLogin";
+import SaccoDetails from "./pages/SaccoDetails";
+import AddAdmin from "./pages/AddAdmin";
+import Sacco_Report from "./pages/Sacco_Report";
+import Admin from "./pages/Admin";
 
 function App() {
   return (
@@ -20,6 +25,11 @@ function App() {
         <Route path="/route_registration" element={<MyRoutes />} />
         <Route path="/route_stations" element={<RouteStations />} />
         <Route path="/stages" element={<Stages />} />
+        <Route path="/login" element={<SaccoLogin />} />
+        <Route path="/details" element={<SaccoDetails />} />
+        <Route path="/add_admin" element={<AddAdmin />} />
+        <Route path="/report" element={<Sacco_Report />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );

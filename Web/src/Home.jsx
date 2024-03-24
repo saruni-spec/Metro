@@ -1,8 +1,10 @@
 import bus2 from "./assets/bus2.jpg";
 import Background from "./components/Background";
 import styles from "./core/styles";
+import { theme } from "./core/theme";
 
 const Home = () => {
+  const emailAddress = "smithsaruni16@gmail.com";
   return (
     <Background>
       <div
@@ -39,17 +41,21 @@ const Home = () => {
         </div>
       </div>
       <div style={styles.container}>
-        <div>Metro Rides</div>
         <div>
-          <a href="/saccoRagistration">Vehicle Registration</a>
+          <a href="/saccoRagistration" style={{ padding: 10, marginRight: 50 }}>
+            Sacco Registration
+          </a>
+
+          <a href="/login" style={{ padding: 10, marginLeft: 50 }}>
+            Sacco Login
+          </a>
         </div>
       </div>
       <div style={styles.container}>
-        <div>Contact Us</div>
         <div style={styles.box}>
-          <div>Email</div>
-          <div>Phone</div>
-          <div>Twitter</div>
+          <div>
+            Email: <a href={`mailto:${emailAddress}`}>{emailAddress}</a>
+          </div>
         </div>
       </div>
     </Background>

@@ -6,13 +6,24 @@ bp = Blueprint("bus_route", __name__, url_prefix="/bus_route")
 
 
 def find_matching_route(routes, pick_up, destination):
+    myRoute = f"{pick_up}-{destination}"
+    myRouteReversed = f"{destination}-{pick_up}"
     for route in routes:
-        print(route.endpoints)
-        if route.endpoints is not None:
-            print(pick_up, destination, "yy")  # Ensure endpoints is not None
-            if pick_up in route.endpoints and destination in route.endpoints:
-                return route  # Return the matching route
-    return None  # Return None if no matching route is found
+        print(route.route_name, "route.route_name")
+        print(myRoute, "myRoute")
+        print(myRouteReversed, "myRouteReversed")
+
+        if route.route_name == myRoute or route.route_name == myRouteReversed:
+            if route.endpoints is None:
+
+                route.add_endpoints([pick_up, destination])
+            return route
+
+        else:
+            print(route.route_name, "route.route_name")
+            print("route does not exist")
+            # Return the matching route
+    return None
 
 
 @bp.route("/", methods=["POST"])
@@ -32,29 +43,41 @@ def bus_route():
         current_route = find_matching_route(routes, pick_up, destination)
         print(current_route)
         if current_route is None:
-            return jsonify({"status": "failed", "msg": "Route not Found"}), 400
-        else:
+            print("creating new route")
+            route = Route(f"{pick_up}-{destination}", [pick_up, destination], 0)
 
-            current_trip = Trip(current_route.route_id, "fdfd", pick_up, fare)
-            current_trip.save()
-            current_trip.set_capacity()
-            return (
-                jsonify(
-                    {
-                        "status": "success",
-                        "message": "Trip Created",
-                        "data": {
-                            "trip_id": current_trip.trip_id,
-                            "route": current_trip.trip_route.route_name,
-                            "available_seats": current_trip.available_seats,
-                            "booked_seats": current_trip.booked_seats,
-                            "depature_time": f"{current_trip.date},{current_trip.time}",
-                            "fare": current_trip.fare,
-                        },
-                    }
-                ),
-                200,
-            )
+            route.save()
+            route.add_stage(pick_up)
+            route.add_stage(destination)
+            current_route = route
+        else:
+            print("route exists")
+        print(current_route, "current_route")
+        if pick_up not in current_route.stages:
+            current_route.add_stage(pick_up)
+        if destination not in current_route.stages:
+            current_route.add_stage(destination)
+
+        current_trip = Trip(current_route.route_id, "fdfd", pick_up, fare)
+        current_trip.save()
+        current_trip.set_capacity()
+        return (
+            jsonify(
+                {
+                    "status": "success",
+                    "message": "Trip Created",
+                    "data": {
+                        "trip_id": current_trip.trip_id,
+                        "route": current_trip.trip_route.route_name,
+                        "available_seats": current_trip.available_seats,
+                        "booked_seats": current_trip.booked_seats,
+                        "depature_time": f"{current_trip.date},{current_trip.time}",
+                        "fare": current_trip.fare,
+                    },
+                }
+            ),
+            200,
+        )
     else:
         return jsonify({"message": "Invalid request method"}), 405
 
@@ -88,12 +111,20 @@ def check_trip():
 @bp.route("/close_trip", methods=["POST"])
 def close_trip():
     if request.method == "POST":
+        data = request.get_json()
+        index = data.get("index")
+        print(index, "index of trip")
         vehicle = Vehicle.query.filter_by(driver_id=current_user.user_id).first()
         trip = Trip.query.filter_by(
             vehicle_plate=vehicle.no_plate, ongoing=True
         ).first()
         if trip:
-            trip.complete()
+            if index == 0:
+                print("trip completed")
+                trip.complete()
+            else:
+                print("trip cancelled")
+                trip.cancel_trip()
             return jsonify({"status": "success", "message": "Trip closed"}), 200
         else:
             return jsonify({"status": "failed", "message": "No trip found"}), 404

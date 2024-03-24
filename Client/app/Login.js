@@ -8,6 +8,7 @@ import Background from "../components/Background";
 import Button from "../components/Button";
 import PasswordInput from "../components/PasswordInput";
 import EmailInput from "../components/EmailInput";
+import TextOutput from "../components/TextOutput";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -19,7 +20,7 @@ const Login = () => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.222.61:5000/login/",
+        "http://192.168.4.61:5000/login/",
         {
           email,
           password,
@@ -68,6 +69,8 @@ const Login = () => {
 
   return (
     <Background>
+      <TextOutput>Metro Bus Booking</TextOutput>
+
       <EmailInput
         label="Email"
         returnKeyType="next"

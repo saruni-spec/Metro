@@ -29,6 +29,7 @@ def login():
                 print("Password verified")
 
                 login_user(user)
+                print(user.role, "role")
                 if user.role == "driver":
                     return (
                         jsonify(

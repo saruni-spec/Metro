@@ -20,7 +20,7 @@ const SaccoRegistration = () => {
       phoneNumber: phoneNumber,
       email: email,
     };
-    navigate("/sacco_password", { state: { details } });
+    navigate("/add_admin", { state: { details } });
   };
 
   return (

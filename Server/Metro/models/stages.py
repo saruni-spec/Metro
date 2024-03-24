@@ -23,3 +23,12 @@ class Stage(db.Model):
     def change_stage_name(self, stage_name):
         self.stage_name = stage_name
         db.session.commit()
+
+    def serialize(self):
+        return {
+            "stage_id": self.stage_id,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "stage_name": self.stage_name,
+            "stage_description": self.stage_description,
+        }

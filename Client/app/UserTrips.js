@@ -9,7 +9,7 @@ const UserTrips = () => {
   const [history, setHistory] = useState([]);
   useEffect(() => {
     axios
-      .get("http://192.168.222.61:5000/profile/user_history", {
+      .get("http://192.168.4.61:5000/profile/user_history", {
         withCredentials: true,
       })
       .then((res) => {
@@ -24,13 +24,16 @@ const UserTrips = () => {
   return (
     <Background>
       <View style={{ flex: 1, width: "100%" }}>
-        {history.map((item, index) => (
-          <View style={{ flex: 1, width: "100%" }}>
+        {history.map((item, key) => (
+          <View style={{ width: "100%", paddingBottom: 10 }} key={key}>
             <Text>{item.route}</Text>
+            <Text>Booking Id : {item.booking_id}</Text>
+            <Text>Transaction Id : {item.transaction_id}</Text>
             <Text>Date : {item.depature_time}</Text>
-            <Text>Seats : {item.vehicle}</Text>
-            <Text>Charges : {item.fare}</Text>
+            <Text>Vehicle Plate : {item.vehicle}</Text>
+            <Text>Charges : {item.fare} Ksh</Text>
             <Text>Status : {item.status}</Text>
+
             <Divider />
           </View>
         ))}

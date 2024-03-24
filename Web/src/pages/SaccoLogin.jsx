@@ -1,27 +1,26 @@
 import Background from "../components/Background";
-import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import "./sacco.css";
+import axios from "axios";
 
-const SaccoPassword = () => {
+const SaccoLogin = () => {
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const location = useLocation();
-  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
 
-  const details = location.state.details;
+  let navigate = useNavigate();
 
-  const handleRegister = () => {
-    const updatedDetails = {
-      ...details,
-      password: password,
-    };
+  const handleLogin = () => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
-      .post("http://192.168.4.61:5000/sacco_registration/", updatedDetails)
+      .post(
+        "http://192.168.4.61:5000/sacco_registration/login",
+        { password: password, email: email },
+        {
+          withCredentials: true,
+        }
+      )
       .then((res) => {
         console.log(res);
         navigate("/sacco_dashboard");
@@ -42,34 +41,35 @@ const SaccoPassword = () => {
         }
       });
   };
+
   return (
     <Background>
       <div>
         <div className="form">
           <div className="input-box">
-            <label>Password</label>
+            <label>Email</label>
             <input
-              type="password"
-              placeholder="Enter Password"
+              type="email"
+              placeholder="Email"
               required
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
             />
           </div>
           <div className="input-box">
             <label>Confirm Password</label>
             <input
               type="password"
-              placeholder="Confirm Password"
+              placeholder="Password"
               required
-              onChange={(event) => setConfirmPassword(event.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
             />
           </div>
 
-          <button onClick={handleRegister}>Submit</button>
+          <button onClick={handleLogin}>Login</button>
         </div>
       </div>
     </Background>
   );
 };
 
-export default SaccoPassword;
+export default SaccoLogin;

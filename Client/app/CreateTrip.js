@@ -1,38 +1,48 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Background from "../components/Background";
 import SearchableList from "../components/searchable";
 import axios from "axios";
-import { View, FlatList, TouchableOpacity, Text } from "react-native";
+import {
+  View,
+  FlatList,
+  TouchableOpacity,
+  Text,
+  ScrollView,
+} from "react-native";
 import TextInput from "../components/input";
 import Button from "../components/Button";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import styles from "../core/styles";
+import { Picker } from "@react-native-picker/picker";
+import TextOutput from "../components/TextOutput";
+import { Alert } from "react-native";
 
 const CreateTrip = () => {
   const [trip, setTrip] = useState({});
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      axios
-        .get("http://192.168.222.61:5000/bus_route/check_trip", {
-          withCredentials: true,
-        })
-        .then((res) => {
+  const check_trip = () => {
+    axios
+      .get("http://192.168.4.61:5000/bus_route/check_trip", {
+        withCredentials: true,
+      })
+      .then((res) => {
+        console.log(res.data.data);
+
+        if (res.data.data) {
           console.log(res.data.data);
+          setTrip(res.data.data);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+  useFocusEffect(
+    useCallback(() => {
+      check_trip();
+    }, [])
+  );
 
-          if (res.data.data) {
-            console.log(res.data.data);
-            setTrip(res.data.data);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }, 5000); // Run every 5 seconds
-
-    // Clear interval on component unmount
-    return () => clearInterval(interval);
-  }, []);
   console.log(trip, "trip");
 
   return (
@@ -50,10 +60,11 @@ const OpenBooking = ({ setTrip }) => {
   const navigation = useNavigation();
   const [stations, setStations] = useState([]);
   const [fare, setFare] = useState(0);
-  const [pickupStation, setPickupStation] = useState("");
-  const [destination, setDestination] = useState("");
+  const [pickupStation, setPickupStation] = useState(null);
+  const [destination, setDestination] = useState(null);
   const [search, setSearch] = useState({ value: "", active: "" });
   const activeInputRef = useRef(null);
+  const [showList, setShowList] = useState(false);
 
   const onSelectStation = (Pickup, destination) => {
     const coordinates = [Pickup, destination];
@@ -61,7 +72,7 @@ const OpenBooking = ({ setTrip }) => {
 
   useEffect(() => {
     axios
-      .get("http://192.168.222.61:5000/stations", {
+      .get("http://192.168.4.61:5000/stations", {
         withCredentials: true,
       })
       .then((res) => {
@@ -76,14 +87,14 @@ const OpenBooking = ({ setTrip }) => {
   const filteredStationData = stations.filter((item) =>
     Object.keys(item)[0].toLowerCase().includes(search.value.toLowerCase())
   );
-
+  console.log(filteredStationData, "filteredStationData");
   const setRoute = () => {
     console.log(pickupStation, destination, fare);
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.222.61:5000/bus_route/",
+        "http://192.168.4.61:5000/bus_route/",
         {
           pickupStation,
           destination,
@@ -105,6 +116,14 @@ const OpenBooking = ({ setTrip }) => {
           console.log(err.response.headers);
           if (err.response.status === 401) {
             navigation.navigate("Login");
+          }
+          if (err.response.status === 404) {
+            Alert.alert(
+              "Failed",
+              "Route doesnt exist",
+              [{ text: "OK", onPress: () => {} }],
+              { cancelable: false }
+            );
           }
           if (err.response.status === 400) {
             // Handle 400 error
@@ -149,62 +168,93 @@ const OpenBooking = ({ setTrip }) => {
     setSearch({ value: "", active: "" });
   };
 
+  const focusInput = (input) => {
+    activeInputRef.current = input;
+    setSearch({ value: "", active: input });
+    setShowList(true);
+  };
+  console.log(
+    showList,
+    "showList",
+    search.active,
+    "search.active",
+    filteredStationData,
+    "filteredStationData"
+  );
+
   return (
-    <View style={{ width: "100%", padding: 20, zIndex: 1 }}>
+    <ScrollView style={{ width: "100%", padding: 20, zIndex: 1 }}>
       <TextInput
         label="Pickup Station"
         returnKeyType="next"
         value={pickupStation}
         onChangeText={(text) => pickupSearch(text)}
-        onFocus={() => (activeInputRef.current = "pickupStation")}
+        onFocus={() => focusInput("pickupStation")}
         autoCapitalize="none"
       />
-      <TextInput
-        label="Destination"
-        returnKeyType="next"
-        value={destination}
-        onChangeText={(text) => destinationSearch(text)}
-        onFocus={() => (activeInputRef.current = "destination")}
-        autoCapitalize="none"
-      />
-      {search.value !== "" && (
-        <FlatList
-          data={filteredStationData}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
+      <TextOutput>From : {pickupStation}</TextOutput>
+
+      {showList && search.active === "pickupStation" && (
+        <View>
+          {filteredStationData.map((item, index) => (
             <TouchableOpacity
+              key={index}
               onPress={() => onSelect(item)}
               style={styles.listItem}
             >
               <Text>{Object.keys(item)[0]}</Text>
             </TouchableOpacity>
-          )}
-        />
+          ))}
+        </View>
       )}
       <TextInput
-        label="Set Fare"
-        value={fare}
+        label="Destination"
+        returnKeyType="next"
+        value={destination}
+        onChangeText={(text) => destinationSearch(text)}
+        onFocus={() => focusInput("destination")}
+        autoCapitalize="none"
+      />
+      <TextOutput>To : {destination}</TextOutput>
+      {showList && search.active === "destination" && (
+        <View>
+          {filteredStationData.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => onSelect(item)}
+              style={styles.listItem}
+            >
+              <Text>{Object.keys(item)[0]}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      <TextInput
+        label="Set Fare in Kshs"
+        value={fare.toString()} // Convert to string
         returnKeyType="next"
         keyboardType="number-pad"
         onChangeText={(text) => setFare(text)}
       />
+
       <Button mode="contained" onPress={setRoute}>
         Confirm
       </Button>
-    </View>
+    </ScrollView>
   );
 };
 
 const CurrenTrip = ({ trip, setTrip }) => {
   const navigation = useNavigation();
 
-  const newTrip = () => {
+  const newTrip = (index) => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.222.61:5000/bus_route/close_trip",
-        {},
+        "http://192.168.4.61:5000/bus_route/close_trip",
+        { index: index },
         { withCredentials: true }
       )
       .then((res) => {
@@ -258,7 +308,7 @@ const CurrenTrip = ({ trip, setTrip }) => {
           Route : {trip.route}
         </Text>
         <Text style={{ fontSize: 18, marginBottom: 10 }}>
-          Fare : {trip.fare}
+          Fare : {trip.fare} Ksh
         </Text>
         <Text style={{ fontSize: 18, marginBottom: 10 }}>
           Depature Time : {trip.depature_time}
@@ -268,8 +318,15 @@ const CurrenTrip = ({ trip, setTrip }) => {
         </Text>
       </View>
       <View style={{ alignItems: "center" }}>
-        <Button icon="card-plus-outline" mode="contained" onPress={newTrip}>
-          New Trip
+        <Button
+          icon="card-plus-outline"
+          mode="contained"
+          onPress={() => newTrip(0)}
+        >
+          Complete Trip
+        </Button>
+        <Button icon="cancel" mode="contained" onPress={() => newTrip(1)}>
+          Cancel Trip
         </Button>
       </View>
     </View>

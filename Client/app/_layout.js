@@ -13,13 +13,14 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Logout from "../components/Logout";
 import { RefreshControl, SafeAreaView, ScrollView } from "react-native";
+import RefreshButton from "../components/RefreshButton";
 
 const Drawer = createDrawerNavigator();
 
-const Layout = ({ isLoggedIn, role, setRole, setIsLoggedIn }) => {
+const Layout = ({ isLoggedIn, role, setRole, setIsLoggedIn, onRefresh }) => {
   useEffect(() => {
     axios
-      .get("http://192.168.222.61:5000/login/role", {
+      .get("http://192.168.4.61:5000/login/role", {
         withCredentials: true,
       })
       .then((res) => {
@@ -52,6 +53,9 @@ const Layout = ({ isLoggedIn, role, setRole, setIsLoggedIn }) => {
           <Logout {...props} setLogout={handleLogout} />
         ) : null
       }
+      screenOptions={{
+        headerRight: () => <RefreshButton onRefresh={onRefresh} />,
+      }}
     >
       <Drawer.Screen
         name="Index"
@@ -135,6 +139,7 @@ const App = () => {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
+    // Perform your refresh logic here
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);
@@ -142,19 +147,13 @@ const App = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView
-        contentContainerStyle={{ flex: 1 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        <Layout
-          role={role}
-          isLoggedIn={isLoggedIn}
-          setRole={setRole}
-          setIsLoggedIn={setIsLoggedIn}
-        />
-      </ScrollView>
+      <Layout
+        role={role}
+        isLoggedIn={isLoggedIn}
+        setRole={setRole}
+        setIsLoggedIn={setIsLoggedIn}
+        onRefresh={onRefresh}
+      />
     </SafeAreaView>
   );
 };

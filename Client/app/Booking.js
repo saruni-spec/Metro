@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, TextInput, StyleSheet } from "react-native";
+import { View, TextInput, StyleSheet, ScrollView } from "react-native";
 import TextOutput from "../components/TextOutput";
 import Button from "../components/Button";
 import axios from "axios";
@@ -8,7 +8,7 @@ import styles from "../core/styles";
 import BackButton from "../components/BackButton";
 import { Alert } from "react-native";
 
-const Booking = ({ prevStep, nextStep, selectedBus }) => {
+const Booking = ({ prevStep, nextStep, selectedBus, setBookingId }) => {
   const navigation = useNavigation();
   console.log(selectedBus, "selectedBus");
   const [busBooked, setBusBooked] = useState(false);
@@ -19,7 +19,7 @@ const Booking = ({ prevStep, nextStep, selectedBus }) => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.222.61:5000/bookings/",
+        "http://192.168.4.61:5000/bookings/",
         {
           vehicle: selectedBus.trip.vehicle,
           trip_id: selectedBus.trip.trip_id,
@@ -29,6 +29,7 @@ const Booking = ({ prevStep, nextStep, selectedBus }) => {
       )
       .then((res) => {
         console.log(res.data);
+        setBookingId(res.data.booking_id);
         nextStep();
       })
       .catch((err) => {
@@ -78,10 +79,15 @@ const Booking = ({ prevStep, nextStep, selectedBus }) => {
   };
 
   return (
-    <View style={{ width: "100%", padding: 20, height: "80%", zIndex: 1 }}>
+    <ScrollView
+      style={{ width: "100%", padding: 20, height: "80%", zIndex: 1 }}
+    >
       {!busBooked && <BackButton goBack={prevStep} />}
 
       <View>
+        <TextOutput>Metropolitan Bus Booking</TextOutput>
+        <TextOutput>Trip Id : {selectedBus.trip.trip_id}</TextOutput>
+
         <TextOutput>{selectedBus.trip.route}</TextOutput>
       </View>
       <View>
@@ -107,7 +113,7 @@ const Booking = ({ prevStep, nextStep, selectedBus }) => {
           Proceed to Payment
         </Button>
       )}
-    </View>
+    </ScrollView>
   );
 };
 

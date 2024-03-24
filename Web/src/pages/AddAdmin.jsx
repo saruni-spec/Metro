@@ -1,30 +1,32 @@
 import Background from "../components/Background";
-import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import "./sacco.css";
+import axios from "axios";
+import { useLocation } from "react-router-dom";
 
-const SaccoPassword = () => {
+const AddAdmin = () => {
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState("");
+
   const location = useLocation();
-  const navigate = useNavigate();
 
+  let navigate = useNavigate();
   const details = location.state.details;
-
-  const handleRegister = () => {
-    const updatedDetails = {
-      ...details,
-      password: password,
-    };
+  const handleLogin = () => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
-      .post("http://192.168.4.61:5000/sacco_registration/", updatedDetails)
+      .post(
+        "http://192.168.4.61:5000/sacco_registration/add_admin",
+        { password: password, email: email, sacco_email: details.email },
+        {
+          withCredentials: true,
+        }
+      )
       .then((res) => {
         console.log(res);
-        navigate("/sacco_dashboard");
+        navigate("/sacco_password", { state: { details } });
       })
       .catch((error) => {
         if (error.response) {
@@ -42,34 +44,35 @@ const SaccoPassword = () => {
         }
       });
   };
+
   return (
     <Background>
       <div>
         <div className="form">
           <div className="input-box">
-            <label>Password</label>
+            <label>Email</label>
             <input
-              type="password"
-              placeholder="Enter Password"
+              type="email"
+              placeholder="Email"
               required
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => setEmail(event.target.value)}
             />
           </div>
           <div className="input-box">
             <label>Confirm Password</label>
             <input
               type="password"
-              placeholder="Confirm Password"
+              placeholder="Password"
               required
-              onChange={(event) => setConfirmPassword(event.target.value)}
+              onChange={(event) => setPassword(event.target.value)}
             />
           </div>
 
-          <button onClick={handleRegister}>Submit</button>
+          <button onClick={handleLogin}>Add</button>
         </div>
       </div>
     </Background>
   );
 };
 
-export default SaccoPassword;
+export default AddAdmin;

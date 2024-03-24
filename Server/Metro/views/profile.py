@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, request, jsonify
+from flask import Flask, Blueprint, request, jsonify, session
 from Metro.models import User, Trip, Vehicle, Transaction, Booking
 from flask_login import login_required, current_user
 
@@ -28,14 +28,19 @@ def profile():
 @login_required
 def history():
     if request.method == "GET":
-        myvehicle = Vehicle.query.filter_by(driver_id=current_user.user_id).first()
-        mytrips = Trip.query.filter_by(vehicle_plate=myvehicle.no_plate).all()
+        vehicle = session.get("no_plate")
+        mytrips = (
+            Trip.query.filter_by(vehicle_plate=vehicle)
+            .order_by(Trip.date.desc(), Trip.time.desc())
+            .all()
+        )
         trips = []
         if mytrips:
 
             for trip in mytrips:
                 trips.append(
                     {
+                        "trip_id": trip.trip_id,
                         "route": trip.trip_route.route_name,
                         "booked_seats": trip.booked_seats,
                         "depature_time": f"{trip.date},{trip.time}",
@@ -101,6 +106,8 @@ def user_history():
                         "fare": trip.amount,
                         "vehicle": trip.vehicle.no_plate,
                         "status": trip.status,
+                        "booking_id": trip.booking.booking_id,
+                        "transaction_id": trip.booking.transaction[0].transaction_id,
                     }
                 )
             return jsonify({"status": "success", "data": {"trips": trips}})
@@ -110,32 +117,58 @@ def user_history():
         return jsonify({"status": "failed", "msg": "Invalid request method"}), 405
 
 
-@bp.route("/current_trip", methods=["GET"])
+@bp.route("/current_trip", methods=["POST"])
 def current_trip():
-    if request.method == "GET":
-        vehicle = Vehicle.query.filter_by(driver_id=current_user.user_id).first()
+    if request.method == "POST":
+
+        trip_id = request.get_json().get("trip_id")
         trip = Trip.query.filter_by(
-            vehicle_plate=vehicle.driver_id, ongoing=True
+            trip_id=trip_id,
         ).first()
 
         if trip:
-            passengers = Booking.query.filter_by(
-                trip_id=trip.trip_id, Status="confirmed"
+            passengers = Booking.query.filter(
+                Booking.trip_id == trip_id,
+                Booking.Status.in_(["confirmed", "Completed"]),
             ).all()
             passengers_list = []
             for passenger in passengers:
-                passengers_list.append(f"{passenger.email}-{passenger.booking_id}")
+                if passenger.transaction:
+                    passengers_list.append(
+                        {
+                            "name": f"{passenger.passenger.first_name} {passenger.passenger.other_name}",
+                            "phone": passenger.phone,
+                            "booking_id": passenger.booking_id,
+                            "destination": passenger.destination,
+                            "amount": passenger.transaction[0].amount,
+                            "status": passenger.transaction[0].status,
+                        }
+                    )
+                else:
+                    passengers_list.append(
+                        {
+                            "name": f"{passenger.passenger.first_name} {passenger.passenger.other_name}",
+                            "phone": passenger.phone,
+                            "booking_id": passenger.booking_id,
+                            "destination": passenger.destination,
+                            "amount": "Not paid",
+                            "status": "Not paid",
+                        }
+                    )
             return jsonify(
                 {
                     "status": "success",
                     "data": {
                         "trip_id": trip.trip_id,
                         "route": trip.trip_route.route_name,
+                        "fare": trip.fare,
+                        "depature_time": f"{trip.date},{trip.time}",
+                        "booked_seats": trip.booked_seats,
                         "passengers": passengers_list,
                     },
                 }
             )
         else:
-            return jsonify({"status": "success", "data": "No trip ongoing"})
+            return jsonify({"status": "success", "data": "No trip ongoing"}), 404
     else:
         return jsonify({"status": "failed", "msg": "Invalid request method"}), 405

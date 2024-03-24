@@ -11,7 +11,7 @@ const MyRoutes = () => {
     axios.defaults.xsrfCookieName = "csrftoken";
     axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
     axios
-      .post("http://localhost:5000/add_route/", { start, end, distance })
+      .post("http://192.168.4.61:5000/add_route/", { start, end, distance })
       .then((res) => {
         console.log(res);
       })

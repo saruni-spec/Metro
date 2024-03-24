@@ -12,7 +12,7 @@ class Booking(db.Model):
     email = db.Column(db.String(100), ForeignKey("user.email"), nullable=False)
     phone = db.Column(db.String(100), nullable=True)
     date = db.Column(Date, default=datetime.utcnow().date())
-    time = db.Column(Time, default=datetime.utcnow().time())
+    time = db.Column(Time, default=lambda: datetime.utcnow().time())
     pickup_point = db.Column(db.String(100), nullable=False)
     destination = db.Column(db.String(100), nullable=False)
     vehicle_plate = db.Column(
@@ -33,7 +33,7 @@ class Booking(db.Model):
         self.vehicle_plate = vehicle
         self.trip_id = trip_id
 
-        self.Status = "Pending"
+        self.Status = "confirmed"
 
     def save(self):
 
@@ -46,12 +46,33 @@ class Booking(db.Model):
 
     def cancel(self):
         self.Status = "Cancelled"
+        self.trip.available_seats += 1
+        self.trip.booked_seats -= 1
 
+        if self.transaction:
+            self.transaction[0].cancel_payment()
         db.session.commit()
 
     def commit():
         db.session.commit()
 
     def reduce_seats(self):
-        self.Status = "confirmed"
         self.trip.reduce_seats()
+
+    def complete(self):
+        self.Status = "Completed"
+        db.session.commit()
+
+    def serialize(self):
+        return {
+            "booking_id": self.booking_id,
+            "email": self.email,
+            "phone": self.phone,
+            "date": self.date.strftime("%Y-%m-%d"),  # convert date to string
+            "time": self.time.strftime("%H:%M"),
+            "pickup_point": self.pickup_point,
+            "destination": self.destination,
+            "vehicle_plate": self.vehicle_plate,
+            "Status": self.Status,
+            "trip_id": self.trip_id,
+        }

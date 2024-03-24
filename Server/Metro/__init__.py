@@ -42,5 +42,6 @@ def create_app():
     app.register_blueprint(bookings_bp)
     app.register_blueprint(transactions_bp)
     app.register_blueprint(profile_bp)
+    app.register_blueprint(admin_bp)
 
     return app

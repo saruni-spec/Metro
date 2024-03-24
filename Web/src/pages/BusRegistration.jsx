@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import "./sacco.css";
+
 import Background from "../components/Background";
 
 const BusRegistration = () => {
@@ -12,7 +13,7 @@ const BusRegistration = () => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
-      .post("http://localhost:5000/bus_registration/", {
+      .post("http://192.168.4.61:5000/bus_registration/", {
         numberPlate,
         capacity,
         vehicleType,
@@ -38,6 +39,19 @@ const BusRegistration = () => {
   };
   return (
     <Background>
+      <a
+        href="/sacco_dashboard"
+        style={{
+          position: "fixed",
+          top: "10px",
+          left: "10px",
+          padding: "5px",
+          backgroundColor: "white",
+          borderRadius: "5px",
+        }}
+      >
+        Home
+      </a>
       <div>
         <div className="form">
           <div className="input-box">

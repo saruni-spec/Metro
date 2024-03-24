@@ -76,7 +76,7 @@ class User(db.Model):
         db.session.commit()
 
     def is_admin(self):
-        return self.role == "admin"
+        return True if self.role == "admin" else False
 
     def delete(self):
         db.session.delete(self)
@@ -96,3 +96,23 @@ class User(db.Model):
 
     def is_registered(self, email):
         return User.query.filter_by(email=email).first()
+
+    def make_admin(self):
+        self.role = "admin"
+        db.session.commit()
+
+    def add_sacco(self, sacco_id):
+        self.sacco_id = sacco_id
+        db.session.commit()
+
+    def serialize(self):
+        return {
+            "user_id": self.user_id,
+            "first_name": self.first_name,
+            "other_name": self.other_name,
+            "email": self.email,
+            "phone": self.phone,
+            "role": self.role,
+            "date_registered": self.date_registered.strftime("%Y-%m-%d"),
+            "sacco": self.sacco.serialize() if self.sacco else None,
+        }

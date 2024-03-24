@@ -13,6 +13,7 @@ def add_route():
         endpoints = [data.get("start"), data.get("end")]
         route = Route(routeName, endpoints, distance)
         route.save()
+        route.add_stages(endpoints)
         return (
             jsonify({"status": "success", "message": "Route added successfully"}),
             201,

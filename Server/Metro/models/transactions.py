@@ -14,7 +14,7 @@ class Transaction(db.Model):
         db.String(100), ForeignKey("vehicle.no_plate"), nullable=False
     )
     date = db.Column(Date, default=datetime.utcnow().date())
-    time = db.Column(Time, default=datetime.utcnow().time())
+    time = db.Column(Time, default=lambda: datetime.utcnow().time())
     booking_id = db.Column(
         db.Integer, ForeignKey("booking.booking_id"), unique=True, nullable=False
     )
@@ -30,7 +30,6 @@ class Transaction(db.Model):
     def __init__(self, email, vehicle_id, booking_id, amount, phone_number):
         self.email = email
         self.vehicle_id = vehicle_id
-        self.time = datetime.now().strftime("%H:%M:%S")
         self.booking_id = booking_id
         self.amount = amount
         self.phone_number = phone_number
@@ -50,3 +49,17 @@ class Transaction(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+    def serialize(self):
+        return {
+            "transaction_id": self.transaction_id,
+            "email": self.email,
+            "vehicle_id": self.vehicle_id,
+            "date": self.date.strftime("%Y-%m-%d"),  # convert date to string
+            "time": self.time.strftime("%H:%M"),
+            "booking_id": self.booking_id,
+            "amount": self.amount,
+            "rating": self.rating,
+            "phone_number": self.phone_number,
+            "status": self.status,
+        }
