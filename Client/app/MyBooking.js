@@ -19,7 +19,7 @@ const MyBooking = () => {
     setBooking(null);
     setIsLoading(true);
     axios
-      .get("http://192.168.4.61:5000/bookings/my_booking", {
+      .get("http://192.168.212.61:5000/bookings/my_booking", {
         withCredentials: true,
       })
       .then((res) => {
@@ -50,7 +50,7 @@ const MyBooking = () => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.4.61:5000/bookings/cancel",
+        "http://192.168.212.61:5000/bookings/cancel",
         {
           booking_id: booking_id,
         },
@@ -95,7 +95,7 @@ const MyBooking = () => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
-      .post("http://192.168.4.61:5000/bookings/payment", {
+      .post("http://192.168.212.61:5000/bookings/payment", {
         withCredentials: true,
       })
       .then((res) => {
@@ -111,7 +111,7 @@ const MyBooking = () => {
         // Set an interval to check the payment status every 5 seconds
         let intervalId = setInterval(() => {
           axios
-            .post("http://192.168.4.61:5000/bookings/payment/status", {
+            .post("http://192.168.212.61:5000/bookings/payment/status", {
               withCredentials: true,
             })
             .then((res) => {

@@ -18,7 +18,7 @@ const AddAdmin = () => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.4.61:5000/sacco_registration/add_admin",
+        "http://192.168.1.108:5000/sacco_registration/add_admin",
         { password: password, email: email, sacco_email: details.email },
         {
           withCredentials: true,

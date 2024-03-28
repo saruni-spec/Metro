@@ -24,7 +24,7 @@ const RoutesStations = () => {
 
   useEffect(() => {
     axios
-      .get("http://192.168.4.61:5000/get_routes/")
+      .get("http://192.168.1.108:5000/get_routes/")
       .then((res) => {
         let route_names = [];
         for (let [key, value] of Object.entries(res.data.data)) {
@@ -45,7 +45,7 @@ const RoutesStations = () => {
       });
 
     axios
-      .get("http://192.168.4.61:5000/stations")
+      .get("http://192.168.1.108:5000/stations")
       .then((res) => {
         console.log(res.data.data);
 
@@ -64,7 +64,7 @@ const RoutesStations = () => {
     axios.defaults.xsrfCookieName = "csrftoken";
     axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
     axios
-      .post("http://192.168.4.61:5000/add_stations/", {
+      .post("http://192.168.1.108:5000/add_stations/", {
         route,
         currentStations,
       })

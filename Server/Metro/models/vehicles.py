@@ -29,14 +29,9 @@ class Vehicle(db.Model):
     def get_id(self):
         return self.no_plate
 
-    def add_driver(self, driver_username):
-        driver = User.query.filter_by(user_name=driver_username).first()
-        if driver & driver.sacco_id == self.sacco_id:
-            self.driver = driver
-            db.session.commit()
-            return True
-        else:
-            return False
+    def add_driver(self, driver_id):
+        self.driver_id = driver_id
+        db.session.commit()
 
     def save(self, vehicle_type, sacco, capacity):
         self.vehicle_type = vehicle_type

@@ -13,7 +13,7 @@ const Logout = (props) => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.4.61:5000/login/logout",
+        "http://192.168.212.61:5000/login/logout",
         {},
         { withCredentials: true }
       )

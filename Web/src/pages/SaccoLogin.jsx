@@ -15,15 +15,19 @@ const SaccoLogin = () => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.4.61:5000/sacco_registration/login",
+        "http://192.168.1.108:5000/sacco_registration/login",
         { password: password, email: email },
         {
           withCredentials: true,
         }
       )
       .then((res) => {
-        console.log(res);
-        navigate("/sacco_dashboard");
+        console.log(res.data.role, "role");
+        if (res.data.role === "sacco") {
+          navigate("/sacco_dashboard");
+        } else {
+          navigate("/admin");
+        }
       })
       .catch((error) => {
         if (error.response) {

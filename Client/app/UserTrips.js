@@ -9,7 +9,7 @@ const UserTrips = () => {
   const [history, setHistory] = useState([]);
   useEffect(() => {
     axios
-      .get("http://192.168.4.61:5000/profile/user_history", {
+      .get("http://192.168.212.61:5000/profile/user_history", {
         withCredentials: true,
       })
       .then((res) => {

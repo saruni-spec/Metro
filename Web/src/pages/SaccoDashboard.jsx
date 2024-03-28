@@ -10,7 +10,7 @@ const SaccoDashboard = () => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
-      .post("http://192.168.4.61:5000/sacco_registration/logout", {
+      .post("http://192.168.1.108:5000/sacco_registration/logout", {
         withCredentials: true,
       })
       .then((res) => {
@@ -44,7 +44,7 @@ const SaccoDashboard = () => {
         </li>
 
         <li>
-          <a href="/report">View Sacco Reports</a>
+          <a href="/report">Sacco Buses</a>
         </li>
         <li>
           <button

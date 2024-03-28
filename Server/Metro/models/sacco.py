@@ -72,3 +72,14 @@ class Sacco(db.Model):
 
     def is_active(self):
         return True
+
+    def serialize(self):
+        return {
+            "sacco_id": self.sacco_id,
+            "sacco_name": self.sacco_name,
+            "sacco_description": self.sacco_description,
+            "sacco_location": self.sacco_location,
+            "sacco_phone": self.sacco_phone,
+            "sacco_email": self.sacco_email,
+            "sacco_rating": self.sacco_rating,
+        }

@@ -4,10 +4,11 @@ import TextInput from "../components/input";
 import Button from "../components/Button";
 import Background from "../components/Background";
 import PasswordInput from "../components/PasswordInput";
-import { Alert } from "react-native";
+import { Alert, ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Text } from "react-native-paper";
 import EmailInput from "../components/EmailInput";
+import PhoneInput from "../components/PhoneInput";
 
 const Register = () => {
   const navigation = useNavigation();
@@ -33,7 +34,7 @@ const Register = () => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
-      .post("http://192.168.4.61:5000/user_registration/", {
+      .post("http://192.168.212.61:5000/user_registration/", {
         email,
         firstName,
         lastName,
@@ -77,59 +78,61 @@ const Register = () => {
 
   return (
     <Background>
-      <TextInput
-        label="Fisrt Name"
-        returnKeyType="next"
-        autoCapitalize="words"
-        value={firstName}
-        onChangeText={(text) => setFirstName(text)}
-      />
-      <TextInput
-        label="Last Name"
-        returnKeyType="next"
-        value={lastName}
-        autoCapitalize="words"
-        onChangeText={(text) => setLastName(text)}
-      />
-      <EmailInput
-        label="Email"
-        returnKeyType="next"
-        value={email}
-        setEmail={setEmail}
-        autoCapitalize="none"
-        autoCompleteType="email"
-        textContentType="emailAddress"
-        keyboardType="email-address"
-      />
+      <ScrollView style={{ width: "100%" }}>
+        <TextInput
+          label="Fisrt Name"
+          returnKeyType="next"
+          autoCapitalize="words"
+          value={firstName}
+          onChangeText={(text) => setFirstName(text)}
+        />
+        <TextInput
+          label="Last Name"
+          returnKeyType="next"
+          value={lastName}
+          autoCapitalize="words"
+          onChangeText={(text) => setLastName(text)}
+        />
+        <EmailInput
+          label="Email"
+          returnKeyType="next"
+          value={email}
+          setEmail={setEmail}
+          autoCapitalize="none"
+          autoCompleteType="email"
+          textContentType="emailAddress"
+          keyboardType="email-address"
+        />
 
-      <TextInput
-        label="Phone Number"
-        value={phoneNumber}
-        returnKeyType="next"
-        textContentType="telephoneNumber"
-        keyboardType="phone-pad"
-        onChangeText={(text) => setPhoneNumber(text)}
-      />
+        <PhoneInput
+          label=""
+          value={phoneNumber}
+          returnKeyType="next"
+          textContentType="telephoneNumber"
+          keyboardType="phone-pad"
+          onChangeText={(text) => setPhoneNumber(text)}
+        />
 
-      <PasswordInput
-        label="password"
-        returnKeyType="next"
-        value={password}
-        onChangeText={(text) => setPassword(text)}
-      />
-      <PasswordInput
-        label="Confirm password"
-        returnKeyType="done"
-        value={confirmPassword}
-        onChangeText={(text) => checkPassword(text)}
-      />
-      {confirmPassword !== "" && passwordMatch !== true && (
-        <Text>Passwords don't match</Text>
-      )}
+        <PasswordInput
+          label="password"
+          returnKeyType="next"
+          value={password}
+          onChangeText={(text) => setPassword(text)}
+        />
+        <PasswordInput
+          label="Confirm password"
+          returnKeyType="done"
+          value={confirmPassword}
+          onChangeText={(text) => checkPassword(text)}
+        />
+        {confirmPassword !== "" && passwordMatch !== true && (
+          <Text>Passwords don't match</Text>
+        )}
 
-      <Button mode="contained" onPress={handleRegister}>
-        Register
-      </Button>
+        <Button mode="contained" onPress={handleRegister}>
+          Register
+        </Button>
+      </ScrollView>
     </Background>
   );
 };

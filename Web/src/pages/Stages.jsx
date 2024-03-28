@@ -9,7 +9,7 @@ const Stages = () => {
     axios.defaults.xsrfCookieName = "csrftoken";
     axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
     axios
-      .post("http://192.168.4.61:5000/reg_stations/", { station })
+      .post("http://192.168.1.108:5000/reg_stations/", { station })
       .then((res) => {
         console.log(res);
       })

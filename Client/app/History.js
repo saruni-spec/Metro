@@ -20,7 +20,7 @@ const History = () => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.4.61:5000/profile/current_trip",
+        "http://192.168.212.61:5000/profile/current_trip",
         {
           trip_id: trip_id,
         },
@@ -75,7 +75,7 @@ const History = () => {
   useFocusEffect(
     useCallback(() => {
       axios
-        .get("http://192.168.4.61:5000/profile/driver_history", {
+        .get("http://192.168.212.61:5000/profile/driver_history", {
           withCredentials: true,
         })
         .then((res) => {
@@ -213,7 +213,7 @@ const Trip = ({ trip, setCurrentTrip }) => {
       </View>
       <View style={{ width: "90%", padding: 20, margin: 10 }}>
         {trip.passengers.map((passenger, key) => (
-          <View key={key}>
+          <View key={key} style={{ padding: 5, margin: 5 }}>
             <Text>Name : {passenger.name}</Text>
             <Text>Phone Number : {passenger.phone}</Text>
             <Text>Booking ID : {passenger.booking_id}</Text>

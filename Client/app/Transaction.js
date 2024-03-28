@@ -17,7 +17,7 @@ const Transaction = ({ prevStep, selectedBus, setStep, booking_id }) => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
-      .post("http://192.168.4.61:5000/bookings/payment", {
+      .post("http://192.168.212.61:5000/bookings/payment", {
         withCredentials: true,
       })
       .then((res) => {
@@ -37,7 +37,7 @@ const Transaction = ({ prevStep, selectedBus, setStep, booking_id }) => {
         let intervalId = setInterval(() => {
           axios
             .post(
-              "http://192.168.4.61:5000/bookings/payment/status",
+              "http://192.168.212.61:5000/bookings/payment/status",
               { trip_id: selectedBus.trip.trip_id },
               {
                 withCredentials: true,
@@ -98,7 +98,7 @@ const Transaction = ({ prevStep, selectedBus, setStep, booking_id }) => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.4.61:5000/bookings/cancel",
+        "http://192.168.212.61:5000/bookings/cancel",
         {
           id: id,
         },

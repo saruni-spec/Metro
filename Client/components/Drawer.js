@@ -1,18 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
-import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import { TouchableOpacity, Text, StyleSheet, Dimensions } from "react-native";
 import BottomSheet from "react-native-gesture-bottom-sheet";
 import { theme } from "../core/theme";
 
 const Drawer = ({ children, step }) => {
+  const windowHeight = Dimensions.get("window").height;
+  const [height, setHeight] = useState(windowHeight * 0.5);
   // Needed in order to use .show()
   const bottomSheet = useRef();
 
-  const [height, setHeight] = useState(300);
   const changeHeight = () => {
     if (step !== 1) {
-      setHeight(600);
+      setHeight(windowHeight * 0.9);
     } else {
-      setHeight(300);
+      setHeight(windowHeight * 0.5);
     }
   };
   useEffect(() => {

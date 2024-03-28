@@ -1,25 +1,30 @@
 import { useState } from "react";
 import axios from "axios";
 import "./sacco.css";
+import { useNavigate } from "react-router-dom";
 
 import Background from "../components/Background";
 
 const BusRegistration = () => {
+  let navigate = useNavigate();
+
   const [numberPlate, setNumberPlate] = useState("");
   const [capacity, setCapacity] = useState("");
   const [vehicleType, setVehicleType] = useState("bus");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleRegister = () => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
-      .post("http://192.168.4.61:5000/bus_registration/", {
+      .post("http://192.168.1.108:5000/bus_registration/", {
         numberPlate,
         capacity,
         vehicleType,
       })
       .then((res) => {
         console.log(res);
+        navigate("/add_driver", { state: { numberPlate: numberPlate } });
       })
       .catch((error) => {
         if (error.response) {
@@ -34,9 +39,16 @@ const BusRegistration = () => {
         } else {
           // Something happened in setting up the request that triggered an Error
           console.log("Error", error.message);
+          setSuccessMessage("Error registering vehicle!");
         }
       });
   };
+
+  function isValidNumberPlate(numberPlate) {
+    const regex = /^K[A-Z]{2}\s[0-9]{3}[A-Z]$/;
+    return regex.test(numberPlate);
+  }
+
   return (
     <Background>
       <a
@@ -61,6 +73,9 @@ const BusRegistration = () => {
               type="text"
               onChange={(event) => setNumberPlate(event.target.value)}
             />
+            {numberPlate !== "" && isValidNumberPlate(numberPlate) ? null : (
+              <div className="error">Invalid number plate</div>
+            )}
           </div>
           <div className="input-box">
             <label>Vehicle Type</label>
@@ -77,6 +92,8 @@ const BusRegistration = () => {
               onChange={(event) => setCapacity(event.target.value)}
             />
           </div>
+
+          {successMessage && <div className="success">{successMessage}</div>}
           <button onClick={handleRegister}>Register</button>
         </div>
       </div>

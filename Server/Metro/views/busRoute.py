@@ -14,14 +14,16 @@ def find_matching_route(routes, pick_up, destination):
         print(myRouteReversed, "myRouteReversed")
 
         if route.route_name == myRoute or route.route_name == myRouteReversed:
+            print(route.route_name, "route matches")
+            print(route.endpoints, "route.endpoints")
             if route.endpoints is None:
-
+                print("route.endpoints is None")
                 route.add_endpoints([pick_up, destination])
             return route
 
         else:
             print(route.route_name, "route.route_name")
-            print("route does not exist")
+            print("route does not match")
             # Return the matching route
     return None
 
@@ -58,8 +60,11 @@ def bus_route():
         if destination not in current_route.stages:
             current_route.add_stage(destination)
 
-        current_trip = Trip(current_route.route_id, "fdfd", pick_up, fare)
+        current_trip = Trip(
+            current_route.route_id, current_user.vehicle[0].no_plate, pick_up, fare
+        )
         current_trip.save()
+        print(current_trip.vehicle, "current_trip.vehicle")
         current_trip.set_capacity()
         return (
             jsonify(

@@ -61,7 +61,7 @@ const Home = () => {
   const checkStatus = () => {
     console.log("checking status");
     axios
-      .get("http://192.168.4.61:5000/bookings/my_booking", {
+      .get("http://192.168.212.61:5000/bookings/my_booking", {
         withCredentials: true,
       })
       .then((res) => {
@@ -170,7 +170,7 @@ const SearchBus = ({ nextStep, busdata, setMyDestination, setMyStation }) => {
 
   useEffect(() => {
     axios
-      .get("http://192.168.4.61:5000/stations", {
+      .get("http://192.168.212.61:5000/stations", {
         withCredentials: true,
       })
       .then((res) => {
@@ -201,7 +201,7 @@ const SearchBus = ({ nextStep, busdata, setMyDestination, setMyStation }) => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.4.61:5000/find_bus/",
+        "http://192.168.212.61:5000/find_bus/",
         {
           pickupStation,
           destination,

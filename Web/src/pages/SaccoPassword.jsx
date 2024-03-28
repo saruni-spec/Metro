@@ -21,7 +21,7 @@ const SaccoPassword = () => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
-      .post("http://192.168.4.61:5000/sacco_registration/", updatedDetails)
+      .post("http://192.168.1.108:5000/sacco_registration/", updatedDetails)
       .then((res) => {
         console.log(res);
         navigate("/sacco_dashboard");

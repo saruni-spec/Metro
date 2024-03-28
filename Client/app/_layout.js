@@ -20,7 +20,7 @@ const Drawer = createDrawerNavigator();
 const Layout = ({ isLoggedIn, role, setRole, setIsLoggedIn, onRefresh }) => {
   useEffect(() => {
     axios
-      .get("http://192.168.4.61:5000/login/role", {
+      .get("http://192.168.212.61:5000/login/role", {
         withCredentials: true,
       })
       .then((res) => {
@@ -77,6 +77,7 @@ const Layout = ({ isLoggedIn, role, setRole, setIsLoggedIn, onRefresh }) => {
         name="Register"
         component={Register}
         options={{
+          headerShown: false,
           drawerItemStyle: role === "" ? undefined : { display: "none" },
         }}
       />

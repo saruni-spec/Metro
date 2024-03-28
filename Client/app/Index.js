@@ -6,15 +6,24 @@ const Index = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigation.navigate("Login");
-    }, 5000);
+    }, 6000);
 
     return () => clearTimeout(timer); // This will clear the timer when the component unmounts.
   }, [navigation]);
+
   return (
-    <View>
-      <TextOutput>Metro</TextOutput>
+    <View style={styles.container}>
+      <TextOutput>Metro Bus Booking</TextOutput>
     </View>
   );
+};
+
+const styles = {
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 };
 
 export default Index;

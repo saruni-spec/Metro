@@ -1,0 +1,3 @@
+-- database: /home/boss/Metro/Server/Metro/models/metro.db
+-- Use the ▷ button in the top right corner to run the entire file.
+PRAGMA foreign_keys = on;

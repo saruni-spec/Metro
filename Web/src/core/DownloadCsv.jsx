@@ -1,13 +1,17 @@
-// @ts-ignore
-import { csv } from "csv-export";
+// utils.js
+import Papa from "papaparse";
 
-export const downloadCsv = (data, filename) => {
-  const headers = Object.keys(data[0]);
-  const rows = data.map((item) => Object.values(item));
+export const downloadCsv = (data, filename, headers) => {
+  const formattedData = data.map((item) =>
+    headers.map((header) => item[header.replace(/ /g, "_").toLowerCase()])
+  );
 
-  const csvData = csv(rows, { headers });
+  const csv = Papa.unparse({
+    fields: headers,
+    data: formattedData,
+  });
 
-  const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
 
   if (link.download !== undefined) {

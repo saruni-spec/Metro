@@ -2,13 +2,27 @@ import { useEffect, useState } from "react";
 import Background from "../components/Background";
 import axios from "axios";
 import "./sacco.css";
+import { useNavigate } from "react-router-dom";
+import { downloadCsv } from "../core/DownloadCsv";
 
 const Sacco_Report = () => {
+  let navigate = useNavigate();
+
   const [report, setReport] = useState(null);
+  const headers = [
+    "Vehicle",
+    "Driver",
+    "Total_trips",
+    "Total_income",
+    "Total_bookings",
+    "Trips_today",
+    "Income_today",
+    "Bookings_today",
+  ];
 
   const getReport = () => {
     axios
-      .get("http://192.168.4.61:5000/sacco_registration/report", {
+      .get("http://192.168.1.108:5000/sacco_registration/report", {
         withCredentials: true,
       })
       .then((res) => {
@@ -27,6 +41,14 @@ const Sacco_Report = () => {
     getReport();
   }, []);
 
+  const changeDriver = (numberPlate) => {
+    navigate("/add_driver", { state: { numberPlate: numberPlate } });
+  };
+
+  const handleCsvDownload = () => {
+    downloadCsv(report, "Sacco_Report", headers);
+  };
+
   return (
     <Background>
       <a
@@ -42,23 +64,66 @@ const Sacco_Report = () => {
       >
         Home
       </a>
+      <button onClick={handleCsvDownload}>Download Report</button>
       {report && (
-        <ul className="noList">
-          {report.map((item, key) => (
-            <li key={key}>
-              <div>
-                <p>Vehicle: {item.vehicle}</p>
-                <p>Driver: {item.driver}</p>
-                <p>Total trips: {item.Total_trips}</p>
-                <p>Total earning: {item.Total_income}</p>
-                <p>Total Bookings: {item.Total_bookings}</p>
-                <p>Trips Today :{item.Trips_today}</p>
-                <p>Income Today :{item.Income_today}</p>
-                <p>Bookings Today :{item.Bookings_today}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <table
+          className="table"
+          style={{ borderCollapse: "collapse", width: "100%" }}
+        >
+          <thead>
+            <tr>
+              {headers.map((header, index) => (
+                <th
+                  key={index}
+                  style={{ border: "1px solid #ddd", padding: "8px" }}
+                >
+                  {header}
+                </th>
+              ))}
+              <th style={{ border: "1px solid #ddd", padding: "8px" }}>
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {report.map((item, key) => (
+              <tr key={key}>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  {item.vehicle}
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  {item.driver}
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  {item.Total_trips}
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  {item.Total_income}
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  {item.Total_bookings}
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  {item.Trips_today}
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  {item.Income_today}
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  {item.Bookings_today}
+                </td>
+                <td style={{ border: "1px solid #ddd", padding: "8px" }}>
+                  <button
+                    type="button"
+                    onClick={() => changeDriver(item.vehicle)}
+                  >
+                    Change Driver
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
       {!report && <p>No Report</p>}
     </Background>

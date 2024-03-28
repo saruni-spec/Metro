@@ -14,7 +14,7 @@ const SaccoDetails = () => {
   const getDetails = () => {
     console.log("details");
     axios
-      .get("http://192.168.4.61:5000/sacco_registration/details", {
+      .get("http://192.168.1.108:5000/sacco_registration/details", {
         withCredentials: true,
       })
       .then((res) => {
@@ -36,7 +36,7 @@ const SaccoDetails = () => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.4.61:5000/sacco_registration/update",
+        "http://192.168.1.108:5000/sacco_registration/update",
         {
           name: saccoName,
           description: description,

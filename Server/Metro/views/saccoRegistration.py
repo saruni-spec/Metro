@@ -40,17 +40,38 @@ def sacco_login():
 
         if user:
             if user.role == "admin":
+
                 sacco = Sacco.query.filter_by(sacco_id=user.sacco_id).first()
                 if sacco.verify_password(password):
 
                     session["sacco_id"] = sacco.sacco_id
                     login_user(user)
                     print(sacco.sacco_email, "login")
-                    return jsonify({"status": "success", "msg": "Logged in"}), 200
+                    return (
+                        jsonify(
+                            {"status": "success", "msg": "Logged in", "role": "sacco"}
+                        ),
+                        200,
+                    )
                 else:
                     return jsonify({"status": "failed", "msg": "Wrong password"}), 400
+
+            elif user.role == "main":
+                if user.verify_password(password):
+                    login_user(user)
+                    return (
+                        jsonify(
+                            {
+                                "status": "success",
+                                "msg": "Logged in",
+                                "role": "admin",
+                            }
+                        ),
+                        200,
+                    )
             else:
                 return jsonify({"status": "failed", "msg": "Not Admin"}), 400
+
         else:
             return (
                 jsonify({"status": "failed", "msg": "Admin accout noe existent"}),
@@ -183,14 +204,14 @@ def sacco_report():
                             bookings_today += 1
                     report.append(
                         {
-                            "vehicle": vehicle.no_plate,
-                            "driver": vehicle.driver.first_name,
-                            "Total_trips": len(vehicle.trips),
-                            "Total_income": total_income,
-                            "Total_bookings": len(vehicle.booking),
-                            "Trips_today": trips_today,
-                            "Income_today": income_today,
-                            "Bookings_today": bookings_today,
+                            "vehicle": str(vehicle.no_plate),
+                            "driver": str(vehicle.driver.first_name),
+                            "Total_trips": str(len(vehicle.trips)),
+                            "Total_income": str(total_income),
+                            "Total_bookings": str(len(vehicle.booking)),
+                            "Trips_today": str(trips_today),
+                            "Income_today": str(income_today),
+                            "Bookings_today": str(bookings_today),
                         }
                     )
 

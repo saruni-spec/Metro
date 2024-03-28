@@ -86,13 +86,9 @@ class User(db.Model):
         db.session.commit()
 
     def make_driver(self, sacco_id):
-        sacco = Sacco.query.filter_by(sacco_id=sacco_id).first()
-        if self.role == "driver" & sacco:
-            self.sacco_id = sacco_id
-            db.session.commit()
-            return True
-        else:
-            return False
+        self.sacco_id = sacco_id
+        self.role = "driver"
+        db.session.commit()
 
     def is_registered(self, email):
         return User.query.filter_by(email=email).first()
@@ -114,5 +110,9 @@ class User(db.Model):
             "phone": self.phone,
             "role": self.role,
             "date_registered": self.date_registered.strftime("%Y-%m-%d"),
-            "sacco": self.sacco.serialize() if self.sacco else None,
+            "sacco": self.sacco_id,
         }
+
+    def make_passenger(self):
+        self.role = "passenger"
+        db.session.commit()

@@ -22,7 +22,7 @@ const CreateTrip = () => {
 
   const check_trip = () => {
     axios
-      .get("http://192.168.4.61:5000/bus_route/check_trip", {
+      .get("http://192.168.212.61:5000/bus_route/check_trip", {
         withCredentials: true,
       })
       .then((res) => {
@@ -72,7 +72,7 @@ const OpenBooking = ({ setTrip }) => {
 
   useEffect(() => {
     axios
-      .get("http://192.168.4.61:5000/stations", {
+      .get("http://192.168.212.61:5000/stations", {
         withCredentials: true,
       })
       .then((res) => {
@@ -94,7 +94,7 @@ const OpenBooking = ({ setTrip }) => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.4.61:5000/bus_route/",
+        "http://192.168.212.61:5000/bus_route/",
         {
           pickupStation,
           destination,
@@ -253,7 +253,7 @@ const CurrenTrip = ({ trip, setTrip }) => {
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
       .post(
-        "http://192.168.4.61:5000/bus_route/close_trip",
+        "http://192.168.212.61:5000/bus_route/close_trip",
         { index: index },
         { withCredentials: true }
       )

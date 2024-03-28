@@ -25,7 +25,7 @@ const Profile = () => {
 
   useEffect(() => {
     axios
-      .get("http://192.168.4.61:5000/profile/", {
+      .get("http://192.168.212.61:5000/profile/", {
         withCredentials: true,
       })
       .then((res) => {
@@ -73,7 +73,7 @@ const UpdateProfile = ({ setReload, setUpdate }) => {
     axios.defaults.xsrfCookieName = "csrf_token";
     axios.defaults.xsrfHeaderName = "X-CSRFToken";
     axios
-      .post("http://192.168.4.61:5000/profile/update", {
+      .post("http://192.168.212.61:5000/profile/update", {
         email,
         first_name,
         other_name,

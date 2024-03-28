@@ -12,6 +12,7 @@ import SaccoDetails from "./pages/SaccoDetails";
 import AddAdmin from "./pages/AddAdmin";
 import Sacco_Report from "./pages/Sacco_Report";
 import Admin from "./pages/Admin";
+import AddDriver from "./pages/AddDriver";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="/add_admin" element={<AddAdmin />} />
         <Route path="/report" element={<Sacco_Report />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/add_driver" element={<AddDriver />} />
       </Routes>
     </BrowserRouter>
   );
